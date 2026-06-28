@@ -54,6 +54,7 @@ function App() {
   const [dragState, setDragState] = useState(null);
   const [resizeState, setResizeState] = useState(null);
   const pageRef = useRef(null);
+  const fileInputRefs = useRef({});
 
   const duration = DURATION_OPTIONS[durationIndex];
   const totalPoints = exercises.reduce((sum, exercise) => sum + exercise.points, 0);
@@ -227,6 +228,11 @@ function App() {
 
   const getHeightPercentage = (height) => Math.round((height / TOTAL_EXERCISE_HEIGHT) * 100);
 
+  const triggerExerciseFileInput = (id) => {
+    if (isExporting) return;
+    fileInputRefs.current[id]?.click();
+  };
+
   const handleExerciseImage = (id, file) => {
     if (!file || !file.type.startsWith('image/')) return;
 
@@ -293,7 +299,7 @@ function App() {
         <p className="eyebrow">A4 Exam Maker</p>
         <h1>Créer une feuille A4 avec entête fixe</h1>
         <p className="intro">
-          Dans l’aperçu, tire la ligne entre les exercices pour modifier directement la hauteur.
+          Clique directement sur la zone de photo dans l’aperçu pour choisir un fichier.
         </p>
 
         <div className="form-group">
@@ -387,12 +393,24 @@ function App() {
               <small>Hauteur actuelle : {getHeightPercentage(exerciseHeights[index])} %</small>
             </div>
 
-            <label>Photo pour {exercise.title}</label>
             <input
+              ref={(input) => {
+                fileInputRefs.current[exercise.id] = input;
+              }}
+              className="hidden-file-input"
               type="file"
               accept="image/*"
               onChange={(e) => handleExerciseImage(exercise.id, e.target.files?.[0])}
             />
+
+            <button
+              type="button"
+              className="secondary photo-delete-button"
+              onClick={() => clearExerciseImage(exercise.id)}
+              disabled={!exercise.image}
+            >
+              Supprimer photo
+            </button>
 
             {exercise.image && (
               <div className="photo-controls">
@@ -426,14 +444,9 @@ function App() {
                 />
                 <small>{exercise.y}px</small>
 
-                <div className="two-cols">
-                  <button type="button" className="secondary" onClick={() => resetPhotoPosition(exercise.id)}>
-                    Réinitialiser position
-                  </button>
-                  <button type="button" className="secondary" onClick={() => clearExerciseImage(exercise.id)}>
-                    Supprimer photo
-                  </button>
-                </div>
+                <button type="button" className="secondary" onClick={() => resetPhotoPosition(exercise.id)}>
+                  Réinitialiser position
+                </button>
               </div>
             )}
           </fieldset>
@@ -483,7 +496,11 @@ function App() {
                 <div className="exercise-title">
                   {exercise.title} : * ( {formatPoints(exercise.points)} ) *
                 </div>
-                <div className="exercise-body">
+                <div
+                  className="exercise-body clickable-photo-zone"
+                  onClick={() => triggerExerciseFileInput(exercise.id)}
+                  title="Cliquer pour choisir ou remplacer la photo"
+                >
                   {exercise.image ? (
                     <img
                       className="draggable-photo"
@@ -496,7 +513,7 @@ function App() {
                       }}
                     />
                   ) : (
-                    <div className="empty-zone">Photo de {exercise.title}</div>
+                    <div className="empty-zone">Clique ici pour choisir la photo</div>
                   )}
                 </div>
                 {index === 1 && <span className="side-mark top">1P</span>}
