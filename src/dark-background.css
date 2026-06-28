@@ -1,0 +1,28 @@
+html,
+body,
+#root {
+  min-height: 100% !important;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(100, 116, 139, 0.30), transparent 32%),
+    radial-gradient(circle at 88% 85%, rgba(15, 23, 42, 0.72), transparent 42%),
+    linear-gradient(135deg, #2f343b 0%, #23272d 45%, #15181d 100%) !important;
+  background-attachment: fixed !important;
+}
+
+body {
+  background:
+    radial-gradient(circle at 18% 8%, rgba(100, 116, 139, 0.30), transparent 32%),
+    radial-gradient(circle at 88% 85%, rgba(15, 23, 42, 0.72), transparent 42%),
+    linear-gradient(135deg, #2f343b 0%, #23272d 45%, #15181d 100%) !important;
+}
+
+.app-shell {
+  min-height: 100vh !important;
+  background: transparent !important;
+}
+
+.preview-zone {
+  background: rgba(255, 255, 255, 0.035) !important;
+  border-radius: 18px !important;
+  padding: 18px !important;
+}
