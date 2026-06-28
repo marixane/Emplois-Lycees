@@ -50,8 +50,8 @@
 }
 
 .photo-overlay-tools {
-  opacity: 0.1;
-  pointer-events: auto;
+  opacity: 0;
+  pointer-events: none;
   transition: opacity 0.18s ease;
 }
 
@@ -109,6 +109,8 @@
   font-size: 14px;
   line-height: 1;
   z-index: 31;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .mask-resize-handle {
@@ -121,6 +123,14 @@
   background: #fff;
   cursor: nwse-resize;
   z-index: 31;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.white-mask:hover .mask-delete-button,
+.white-mask:hover .mask-resize-handle {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .exam-page.is-exporting .photo-overlay-tools,
