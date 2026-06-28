@@ -373,17 +373,17 @@ button:disabled {
 .resize-handle {
   position: absolute;
   top: -8px;
-  left: 36px;
-  right: 36px;
+  left: 620px;
+  right: 18px;
   width: auto;
-  height: 14px;
+  height: 16px;
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 99px;
+  border-radius: 0;
   background: transparent;
   cursor: ns-resize;
-  z-index: 10;
+  z-index: 4;
 }
 
 .resize-handle::before {
