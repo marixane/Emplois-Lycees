@@ -299,46 +299,8 @@ function App() {
         <p className="eyebrow">A4 Exam Maker</p>
         <h1>Créer une feuille A4 avec entête fixe</h1>
         <p className="intro">
-          Les points se modifient dans le titre. La photo se choisit et se supprime directement dans sa zone.
+          Classe, durée, titre et professeur se modifient directement dans l’entête de l’épreuve.
         </p>
-
-        <div className="form-group">
-          <label>Classe</label>
-          <input value={studentLevel} onChange={(e) => setStudentLevel(e.target.value)} />
-        </div>
-
-        <div className="form-group">
-          <label>Durée</label>
-          <div className="duration-control compact-control">
-            <button
-              type="button"
-              onClick={() => changeDuration(-1)}
-              disabled={durationIndex === 0}
-              aria-label="Diminuer la durée"
-            >
-              −
-            </button>
-            <strong>{duration}</strong>
-            <button
-              type="button"
-              onClick={() => changeDuration(1)}
-              disabled={durationIndex === DURATION_OPTIONS.length - 1}
-              aria-label="Augmenter la durée"
-            >
-              +
-            </button>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Professeur</label>
-          <textarea
-            value={teacher}
-            onChange={(e) => setTeacher(e.target.value)}
-            rows="2"
-            placeholder="Exemple : Prof : Marwane.R"
-          />
-        </div>
 
         <hr />
 
@@ -418,9 +380,34 @@ function App() {
       <section className="preview-zone">
         <div className="a4-page exam-page" ref={pageRef}>
           <header className="exam-header three-cell-header">
-            <div className="header-cell left-header-cell">
-              <strong>Classe : {studentLevel}</strong>
-              <strong>Durée : {duration}</strong>
+            <div className="header-cell left-header-cell editable-left-header">
+              <label>Classe :</label>
+              <input
+                className="inline-header-input"
+                value={studentLevel}
+                onChange={(e) => setStudentLevel(e.target.value)}
+                aria-label="Classe"
+              />
+              <label>Durée :</label>
+              <div className="inline-duration-control">
+                <button
+                  type="button"
+                  onClick={() => changeDuration(-1)}
+                  disabled={durationIndex === 0}
+                  aria-label="Diminuer la durée"
+                >
+                  −
+                </button>
+                <strong>{duration}</strong>
+                <button
+                  type="button"
+                  onClick={() => changeDuration(1)}
+                  disabled={durationIndex === DURATION_OPTIONS.length - 1}
+                  aria-label="Augmenter la durée"
+                >
+                  +
+                </button>
+              </div>
             </div>
 
             <div className="header-cell middle-header-cell">
@@ -435,7 +422,14 @@ function App() {
             </div>
 
             <div className="header-cell right-header-cell">
-              <strong style={{ fontSize: `${getProfessorFontSize(teacher)}px` }}>{teacher}</strong>
+              <textarea
+                className="inline-prof-input"
+                value={teacher}
+                onChange={(e) => setTeacher(e.target.value)}
+                rows="2"
+                aria-label="Professeur"
+                style={{ fontSize: `${getProfessorFontSize(teacher)}px` }}
+              />
             </div>
           </header>
 
