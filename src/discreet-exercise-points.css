@@ -1,6 +1,6 @@
 .exercise-title-controls {
   display: inline-grid !important;
-  grid-template-columns: auto auto 22px 58px 10px 22px !important;
+  grid-template-columns: auto 22px 10px 58px 10px 22px !important;
   align-items: center !important;
   column-gap: 3px !important;
   white-space: nowrap !important;
@@ -21,8 +21,8 @@
 }
 
 .exercise-title-controls .points-decoration:first-of-type {
-  grid-column: 2 !important;
-  transform: translateX(6px) !important;
+  grid-column: 3 !important;
+  transform: translateX(-2px) !important;
 }
 
 .exercise-title-controls .points-decoration:last-of-type {
@@ -31,7 +31,7 @@
 }
 
 .exercise-title-controls button:first-of-type {
-  grid-column: 3 !important;
+  grid-column: 2 !important;
 }
 
 .exercise-title-controls button:last-of-type {
