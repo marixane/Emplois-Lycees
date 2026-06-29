@@ -1,6 +1,6 @@
 .exercise-title-controls {
   display: inline-grid !important;
-  grid-template-columns: auto auto 22px 78px 22px auto !important;
+  grid-template-columns: auto auto 22px 78px 10px 22px !important;
   align-items: center !important;
   column-gap: 3px !important;
 }
@@ -17,11 +17,25 @@
 }
 
 .exercise-title-controls .points-decoration:first-of-type {
+  grid-column: 2 !important;
   transform: translateX(6px) !important;
 }
 
 .exercise-title-controls .points-decoration:last-of-type {
-  transform: translateX(-34px) !important;
+  grid-column: 5 !important;
+  transform: translateX(-2px) !important;
+}
+
+.exercise-title-controls button:first-of-type {
+  grid-column: 3 !important;
+}
+
+.exercise-title-controls button:last-of-type {
+  grid-column: 6 !important;
+}
+
+.exercise-title-controls strong {
+  grid-column: 4 !important;
 }
 
 .exercise-title-controls .points-decoration::after {
