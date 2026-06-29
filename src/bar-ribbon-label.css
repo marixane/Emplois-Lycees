@@ -1,5 +1,11 @@
 .exam-page.has-bar-ribbon .exercise-body::after {
+  display: none !important;
+  content: none !important;
+}
+
+.exam-page.has-bar-ribbon .exam-exercise:first-child .exercise-body::after {
   content: 'Barème';
+  display: block !important;
   position: absolute;
   left: calc(-2px + 1mm);
   top: 18px;
@@ -13,6 +19,6 @@
   pointer-events: none;
 }
 
-.exam-page.is-exporting.has-bar-ribbon .exercise-body::after {
+.exam-page.is-exporting.has-bar-ribbon .exam-exercise:first-child .exercise-body::after {
   font-size: 7px !important;
 }
