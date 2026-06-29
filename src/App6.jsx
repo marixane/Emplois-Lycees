@@ -26,8 +26,10 @@ const pts = (n) => {
   return arr;
 };
 const ex = (i, p = 5) => ({ id: `${Date.now()}-${i}-${Math.random()}`, points: p, image: null, zoom: 100, x: 0, y: 0, masks: [] });
+const blankEx = () => ({ ...ex(0, 0), blank: true });
 const exs = (n) => pts(n).map((p, i) => ex(i, p));
 const heights = (n, h) => n ? Array.from({ length: n }, (_, i) => i === n - 1 ? h - Math.floor(h / n) * (n - 1) : Math.floor(h / n)) : [];
+const visibleCount = (p) => p.filter((e) => !e.blank).length;
 const titleSize = (t) => t.length > 115 ? 11 : t.length > 90 ? 12 : t.length > 65 ? 14 : t.length > 42 ? 16 : 18;
 const profSize = (t) => t.length > 38 ? 12 : t.length > 26 ? 14 : 16;
 
@@ -48,9 +50,9 @@ export default function App6() {
   const fileRefs = useRef({});
 
   const active = pages.map((p, i) => ({ p, i })).filter(({ p, i }) => i === 0 || p.length).map(({ i }) => i);
-  const all = active.flatMap((i) => pages[i].map((e, j) => ({ e, page: i, index: j })));
+  const all = active.flatMap((i) => pages[i].filter((e) => !e.blank).map((e, j) => ({ e, page: i, index: pages[i].findIndex((item) => item.id === e.id), realIndex: j })));
   const total = Math.round(all.reduce((s, x) => s + x.e.points, 0) * 100) / 100;
-  const startNum = (page) => pages.slice(0, page).reduce((s, p) => s + p.length, 1);
+  const startNum = (page) => pages.slice(0, page).reduce((s, p) => s + visibleCount(p), 1);
 
   const updateEx = (page, id, updates) => {
     setPages((cur) => cur.map((p, pi) => pi === page ? p.map((e) => e.id === id ? { ...e, ...updates } : e) : p));
@@ -69,27 +71,35 @@ export default function App6() {
     } : e) : p));
   };
   const balance = (next) => {
-    const pos = next.flatMap((p, pi) => p.map((_, ei) => ({ pi, ei })));
+    const pos = next.flatMap((p, pi) => p.map((item, ei) => item.blank ? null : { pi, ei }).filter(Boolean));
     const p = pts(pos.length);
-    return next.map((page, pi) => page.map((item, ei) => ({ ...item, masks: item.masks ?? [], points: p[pos.findIndex((x) => x.pi === pi && x.ei === ei)] ?? item.points })));
+    return next.map((page, pi) => page.map((item, ei) => {
+      if (item.blank) return item;
+      return { ...item, masks: item.masks ?? [], points: p[pos.findIndex((x) => x.pi === pi && x.ei === ei)] ?? item.points };
+    }));
   };
   const changeTotalLock = (checked) => {
     setTotalLocked(checked);
     if (checked) setPages((cur) => balance(cur));
   };
   const setCount = (page, d) => {
-    const min = 0;
-    const n = clamp(pages[page].length + d, min, MAX_EX);
+    const current = visibleCount(pages[page]);
+    const n = clamp(current + d, 0, MAX_EX);
     setPages((cur) => {
       const next = cur.map((p, i) => {
         if (n === 0 && i > page) return [];
-        return i === page ? Array.from({ length: n }, (_, j) => p[j] ? { ...p[j], masks: p[j].masks ?? [] } : ex(j)) : p;
+        if (i !== page) return p;
+        if (n === 0 && page === 0) return p.length === 1 && p[0]?.blank ? p : [blankEx()];
+        const real = p.filter((item) => !item.blank);
+        return Array.from({ length: n }, (_, j) => real[j] ? { ...real[j], masks: real[j].masks ?? [] } : ex(j));
       });
       return totalLocked ? balance(next) : next;
     });
     setHs((cur) => cur.map((p, i) => {
       if (n === 0 && i > page) return [];
-      return i === page ? heights(n, i === 0 ? H1 : HN) : p;
+      if (i !== page) return p;
+      if (n === 0 && page === 0) return [H1];
+      return heights(n, i === 0 ? H1 : HN);
     }));
   };
   const pointPeer = (page, index) => {
@@ -99,7 +109,7 @@ export default function App6() {
   };
   const canChangePoint = (page, index, d) => {
     const current = pages[page][index];
-    if (!current) return false;
+    if (!current || current.blank) return false;
     const next = Math.round((current.points + d * 0.25) * 100) / 100;
     if (!totalLocked) return next >= 1 && next <= 20;
     const peer = pointPeer(page, index);
@@ -200,9 +210,9 @@ export default function App6() {
   const preview = async () => { try { const pdf = await makePdf(); window.open(pdf.output('bloburl'), '_blank'); } finally { setExporting(false); } };
   const download = async () => { try { const pdf = await makePdf(); pdf.save('devoir-a4.pdf'); } finally { setExporting(false); } };
 
-  const renderList = (page) => <div className="exercise-list">{pages[page].map((e, i) => <section className={`exam-exercise ex-${i + 1}`} key={e.id} style={{ height: `${hs[page][i]}px` }}>
-    {i > 0 && <button type="button" className="resize-handle" onMouseDown={(ev) => startResize(ev, page, i)} aria-label="Modifier la hauteur" />}
-    <div className="exercise-title exercise-title-controls">{kind === 'homework' ? <span>Exercice {startNum(page) + i}</span> : <><span>Exercice {startNum(page) + i} : </span><span className="points-decoration">* (</span><button onClick={() => changePoint(page, i, -1)} disabled={!canChangePoint(page, i, -1)}>−</button><strong>{fmt(e.points)}</strong><button onClick={() => changePoint(page, i, 1)} disabled={!canChangePoint(page, i, 1)}>+</button><span className="points-decoration">) *</span></>}</div>
+  const renderList = (page) => <div className="exercise-list">{pages[page].map((e, i) => <section className={`exam-exercise ex-${i + 1} ${e.blank ? 'blank-exercise' : ''}`} key={e.id} style={{ height: `${hs[page][i]}px` }}>
+    {!e.blank && i > 0 && <button type="button" className="resize-handle" onMouseDown={(ev) => startResize(ev, page, i)} aria-label="Modifier la hauteur" />}
+    {!e.blank && <div className="exercise-title exercise-title-controls">{kind === 'homework' ? <span>Exercice {startNum(page) + visibleCount(pages[page].slice(0, i))}</span> : <><span>Exercice {startNum(page) + visibleCount(pages[page].slice(0, i))} : </span><span className="points-decoration">* (</span><button onClick={() => changePoint(page, i, -1)} disabled={!canChangePoint(page, i, -1)}>−</button><strong>{fmt(e.points)}</strong><button onClick={() => changePoint(page, i, 1)} disabled={!canChangePoint(page, i, 1)}>+</button><span className="points-decoration">) *</span></>}</div>}
     <div className="exercise-body clickable-photo-zone" onClick={() => !e.image && fileRefs.current[e.id]?.click()}>
       {e.image && <div className="photo-overlay-tools" onClick={(ev) => ev.stopPropagation()}><button type="button" className="photo-tool-button" onClick={() => fileRefs.current[e.id]?.click()}>Changer photo</button><button type="button" className="photo-tool-button" onClick={() => addMask(page, e.id)}>Rectangle blanc</button><button type="button" className="photo-tool-button danger" onClick={() => clearImage(page, e.id)}>Supprimer</button><label className="photo-zoom-control">Zoom <input type="range" min="60" max="220" value={e.zoom ?? 100} onChange={(ev) => updateEx(page, e.id, { zoom: clamp(ev.target.value, 60, 220) })} /><span>{e.zoom ?? 100}%</span></label></div>}
       {e.image ? <><img className="draggable-photo" src={e.image.url ?? e.image} alt={e.image.name ?? 'exercice'} draggable="false" onMouseDown={(ev) => startPhotoDrag(ev, page, e)} style={{ transform: `translate(${e.x ?? 0}px, ${e.y ?? 0}px) scale(${(e.zoom ?? 100) / 100})` }} />{(e.masks ?? []).map((m) => <div className="white-mask" key={m.id} onMouseDown={(ev) => startMaskDrag(ev, page, e.id, m)} style={{ left: `${m.x}px`, top: `${m.y}px`, width: `${m.width}px`, height: `${m.height}px` }}><button type="button" className="mask-delete-button" onMouseDown={(ev) => ev.stopPropagation()} onClick={(ev) => { ev.stopPropagation(); deleteMask(page, e.id, m.id); }}>×</button><span className="mask-resize-handle" onMouseDown={(ev) => startMaskResize(ev, page, e.id, m)} /></div>)}</> : <div className="empty-zone">Clique ici pour choisir la photo</div>}
@@ -215,7 +225,7 @@ export default function App6() {
       <div className="form-group"><label>Type de devoir</label><div className="duration-control compact-control assignment-control"><button onClick={() => { setKind('individual'); setTitle(IND_TITLE); }} disabled={kind === 'individual'}>Individuel</button><button onClick={() => { setKind('homework'); setTitle(HOME_TITLE); }} disabled={kind === 'homework'}>À la maison</button></div></div>
       {kind !== 'homework' && <><label className="total-mode-control"><input type="checkbox" checked={totalLocked} onChange={(ev) => changeTotalLock(ev.target.checked)} />{totalLocked ? 'Total bloqué : ' : 'Total libre : '}{fmt(total)}</label><p className={`points-total ${totalLocked ? 'locked' : 'free'}`}>{totalLocked ? 'Total général bloqué : ' : 'Total général libre : '}{fmt(total)}</p></>}
       <button type="button" className={`pdf-lines-toggle ${pdfLines ? 'on' : 'off'}`} onClick={() => setPdfLines((v) => !v)}>{pdfLines ? 'Lignes visibles dans le PDF' : 'Lignes masquées dans le PDF'}</button>
-      <section className="exercise-count-section"><h2>Nombre d’exercices</h2><div className="page-count-grid">{pages.map((p, i) => <div className="page-count-card" key={i}><label>Page {i + 1}</label><div className="duration-control compact-control"><button onClick={() => setCount(i, -1)} disabled={p.length === 0}>−</button><strong>{p.length}</strong><button onClick={() => setCount(i, 1)} disabled={p.length === MAX_EX}>+</button></div></div>)}</div></section>
+      <section className="exercise-count-section"><h2>Nombre d’exercices</h2><div className="page-count-grid">{pages.map((p, i) => <div className="page-count-card" key={i}><label>Page {i + 1}</label><div className="duration-control compact-control"><button onClick={() => setCount(i, -1)} disabled={visibleCount(p) === 0}>−</button><strong>{visibleCount(p)}</strong><button onClick={() => setCount(i, 1)} disabled={visibleCount(p) === MAX_EX}>+</button></div></div>)}</div></section>
       {active.flatMap((page) => pages[page].map((e) => <input key={e.id} ref={(n) => { fileRefs.current[e.id] = n; }} className="hidden-file-input" type="file" accept="image/*" onChange={(ev) => changeImage(page, e.id, ev.target.files?.[0])} />))}
       <button onClick={preview} disabled={exporting}>{exporting ? 'Préparation...' : 'Voir PDF'}</button><button className="secondary" onClick={download} disabled={exporting}>{exporting ? 'Export en cours...' : 'Exporter PDF A4'}</button>
     </section>
