@@ -18,7 +18,8 @@ label.total-mode-control {
   font-weight: 900 !important;
   line-height: 1.15 !important;
   text-align: center !important;
-  gap: 5px !important;
+  gap: 0 !important;
+  cursor: pointer !important;
 }
 
 label.total-mode-control:has(input:not(:checked)) {
@@ -28,33 +29,7 @@ label.total-mode-control:has(input:not(:checked)) {
 }
 
 label.total-mode-control input {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  width: 15px !important;
-  height: 15px !important;
-  margin: 0 !important;
-  flex: 0 0 auto !important;
-  border: 2px solid #16a34a !important;
-  border-radius: 4px !important;
-  background: #ffffff !important;
-  position: relative !important;
-}
-
-label.total-mode-control input:checked {
-  background: #16a34a !important;
-  border-color: #16a34a !important;
-}
-
-label.total-mode-control input:checked::after {
-  content: '';
-  position: absolute;
-  left: 3px;
-  top: 0px;
-  width: 4px;
-  height: 8px;
-  border: solid #ffffff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  display: none !important;
 }
 
 .points-total {
