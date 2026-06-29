@@ -41,8 +41,8 @@
 }
 
 .preview-zone .a4-page.exam-page:not(.second-page) .exercise-list {
-  height: 994px !important;
-  min-height: 994px !important;
+  height: 1030px !important;
+  min-height: 1030px !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 2px !important;
