@@ -35,7 +35,7 @@ body.arabic-mode .exam-page:not(.has-bar-ribbon) .exercise-body::after {
 
 body.arabic-mode .exam-page.has-bar-ribbon .exercise-body::before {
   left: auto !important;
-  right: -4mm !important;
+  right: -2mm !important;
   width: 39px !important;
   background: #eeeeee !important;
   border-left: 2px solid #9a9a9a !important;
@@ -53,7 +53,7 @@ body.arabic-mode .exam-page.has-bar-ribbon .exam-exercise:first-child .exercise-
   content: 'سلم\A التنقيط' !important;
   display: block !important;
   left: auto !important;
-  right: calc(1px - 4mm) !important;
+  right: calc(1px - 2mm) !important;
   width: 31px !important;
   font-size: 6px !important;
   line-height: 1.05 !important;
@@ -72,13 +72,13 @@ body.arabic-mode .exam-page.has-bar-ribbon .exam-exercise {
 }
 
 body.arabic-mode .exam-page.has-bar-ribbon .bar-buttons {
-  right: calc(38px - 4mm) !important;
+  right: calc(38px - 2mm) !important;
   left: auto !important;
 }
 
 body.arabic-mode .exam-page.has-bar-ribbon .bar-mark {
   left: auto !important;
-  right: 7px !important;
+  right: calc(7px + 2mm) !important;
   z-index: 10001 !important;
   background: transparent !important;
   color: #555555 !important;
