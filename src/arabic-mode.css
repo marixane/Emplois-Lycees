@@ -35,3 +35,23 @@ body.arabic-mode .exam-page .page-number,
 body.arabic-mode .exam-page .page-date {
   transform: translateX(-50%) scaleX(-1) !important;
 }
+
+body.arabic-mode .exam-page.has-bar-ribbon .exercise-body::before {
+  left: auto !important;
+  right: -6px !important;
+}
+
+body.arabic-mode .exam-page.has-bar-ribbon .exam-exercise {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+body.arabic-mode .exam-page.has-bar-ribbon .bar-buttons {
+  left: auto !important;
+  right: 38px !important;
+}
+
+body.arabic-mode .exam-page.has-bar-ribbon .bar-mark {
+  left: auto !important;
+  right: 2px !important;
+}
