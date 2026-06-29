@@ -15,18 +15,24 @@
 }
 
 .preview-zone .second-page .exercise-list {
-  margin-top: 3mm !important;
-  height: calc(1061px - 3mm) !important;
-  min-height: calc(1061px - 3mm) !important;
+  margin-top: 6mm !important;
+  height: calc(1061px - 6mm) !important;
+  min-height: calc(1061px - 6mm) !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 2px !important;
   align-content: stretch !important;
+  overflow: visible !important;
 }
 
 .preview-zone .second-page .exam-exercise {
   flex: 0 1 auto;
   min-height: 55px !important;
+  overflow: visible !important;
+}
+
+.preview-zone .second-page .exam-exercise:first-child {
+  margin-top: 6px !important;
 }
 
 .preview-zone .second-page .exam-exercise:last-child {
