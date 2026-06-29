@@ -1,0 +1,18 @@
+.exam-page:not(.second-page) .exam-exercise:first-child {
+  border-top: 2px solid #111111 !important;
+  margin-top: 1mm !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.exam-page:not(.second-page) .exam-exercise:first-child::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: -2px;
+  height: 2px;
+  background: #111111;
+  z-index: 55;
+  pointer-events: none;
+}
