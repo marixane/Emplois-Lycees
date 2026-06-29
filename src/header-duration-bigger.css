@@ -1,7 +1,7 @@
 .tiny-duration-control {
-  max-width: 140px !important;
-  grid-template-columns: 18px minmax(78px, 1fr) 18px !important;
-  gap: 4px !important;
+  max-width: 170px !important;
+  grid-template-columns: 18px minmax(82px, 1fr) 18px !important;
+  gap: 10px !important;
 }
 
 .tiny-duration-control button {
@@ -13,5 +13,5 @@
 .tiny-duration-control strong {
   height: 24px !important;
   font-size: 13px !important;
-  padding: 0 8px !important;
+  padding: 0 10px !important;
 }
