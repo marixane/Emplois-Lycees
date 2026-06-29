@@ -31,7 +31,7 @@
   border-color: #111111 !important;
   border-radius: 9px 6px 6px 9px !important;
   background:
-    linear-gradient(to right, transparent 0 11px, #111111 11px 16px, transparent 16px),
+    linear-gradient(to right, #eeeeee 0 11px, #111111 11px 16px, transparent 16px),
     linear-gradient(to bottom, transparent 0 8px, #d7d7d7 8px 10px, transparent 10px 20px, #d7d7d7 20px 22px, transparent 22px 32px, #d7d7d7 32px 34px, transparent 34px),
     #ffffff !important;
 }
