@@ -204,18 +204,18 @@
 }
 
 .exam-exercise {
-  padding-top: 18px !important;
+  padding-top: 12px !important;
   padding-bottom: 10px !important;
 }
 
 .exercise-title {
-  top: -10px !important;
+  top: -9px !important;
   left: 12px !important;
 }
 
 .exercise-title-controls {
-  padding-top: 2px !important;
-  padding-bottom: 2px !important;
+  padding-top: 1px !important;
+  padding-bottom: 1px !important;
 }
 
 .exam-page.has-bar-ribbon::before {
