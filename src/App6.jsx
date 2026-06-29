@@ -24,7 +24,7 @@ const pts = (n) => {
   arr[n - 1] = Math.round((arr[n - 1] + TOTAL - arr.reduce((s, x) => s + x, 0)) * 100) / 100;
   return arr;
 };
-const ex = (i, p = 5) => ({ id: `${Date.now()}-${i}-${Math.random()}`, points: p, image: null, zoom: 100, x: 0, y: 0 });
+const ex = (i, p = 5) => ({ id: `${Date.now()}-${i}-${Math.random()}`, points: p, image: null, zoom: 100, x: 0, y: 0, masks: [] });
 const exs = (n) => pts(n).map((p, i) => ex(i, p));
 const heights = (n, h) => n ? Array.from({ length: n }, (_, i) => i === n - 1 ? h - Math.floor(h / n) * (n - 1) : Math.floor(h / n)) : [];
 const titleSize = (t) => t.length > 115 ? 11 : t.length > 90 ? 12 : t.length > 65 ? 14 : t.length > 42 ? 16 : 18;
@@ -52,17 +52,30 @@ export default function App6() {
   const updateEx = (page, id, updates) => {
     setPages((cur) => cur.map((p, pi) => pi === page ? p.map((e) => e.id === id ? { ...e, ...updates } : e) : p));
   };
+  const updateMask = (page, exId, maskId, updates) => {
+    setPages((cur) => cur.map((p, pi) => pi === page ? p.map((e) => e.id === exId ? {
+      ...e,
+      masks: (e.masks ?? []).map((m) => m.id === maskId ? {
+        ...m,
+        ...updates,
+        x: clamp(updates.x ?? m.x, 0, 720),
+        y: clamp(updates.y ?? m.y, 0, 980),
+        width: clamp(updates.width ?? m.width, 24, 720),
+        height: clamp(updates.height ?? m.height, 18, 980),
+      } : m),
+    } : e) : p));
+  };
   const balance = (next) => {
     const pos = next.flatMap((p, pi) => p.map((_, ei) => ({ pi, ei })));
     const p = pts(pos.length);
-    return next.map((page, pi) => page.map((item, ei) => ({ ...item, points: p[pos.findIndex((x) => x.pi === pi && x.ei === ei)] ?? item.points })));
+    return next.map((page, pi) => page.map((item, ei) => ({ ...item, masks: item.masks ?? [], points: p[pos.findIndex((x) => x.pi === pi && x.ei === ei)] ?? item.points })));
   };
   const setCount = (page, d) => {
     const min = page === 0 ? 1 : 0;
     const n = clamp(pages[page].length + d, min, MAX_EX);
     setPages((cur) => balance(cur.map((p, i) => {
       if (n === 0 && i > page) return [];
-      return i === page ? Array.from({ length: n }, (_, j) => p[j] ?? ex(j)) : p;
+      return i === page ? Array.from({ length: n }, (_, j) => p[j] ? { ...p[j], masks: p[j].masks ?? [] } : ex(j)) : p;
     })));
     setHs((cur) => cur.map((p, i) => {
       if (n === 0 && i > page) return [];
@@ -88,18 +101,44 @@ export default function App6() {
   };
   const changeImage = (page, id, file) => {
     if (!file) return;
-    updateEx(page, id, { image: { name: file.name, url: URL.createObjectURL(file) }, zoom: 100, x: 0, y: 0 });
+    updateEx(page, id, { image: { name: file.name, url: URL.createObjectURL(file) }, zoom: 100, x: 0, y: 0, masks: [] });
   };
-  const clearImage = (page, id) => updateEx(page, id, { image: null, zoom: 100, x: 0, y: 0 });
+  const clearImage = (page, id) => updateEx(page, id, { image: null, zoom: 100, x: 0, y: 0, masks: [] });
+  const addMask = (page, id) => {
+    const e = pages[page].find((item) => item.id === id);
+    if (!e) return;
+    updateEx(page, id, { masks: [...(e.masks ?? []), { id: `mask-${Date.now()}`, x: 120, y: 90, width: 160, height: 60 }] });
+  };
+  const deleteMask = (page, exId, maskId) => {
+    const e = pages[page].find((item) => item.id === exId);
+    if (!e) return;
+    updateEx(page, exId, { masks: (e.masks ?? []).filter((m) => m.id !== maskId) });
+  };
   const startPhotoDrag = (ev, page, e) => {
     ev.preventDefault();
     ev.stopPropagation();
     setResize(null);
-    setDrag({ page, id: e.id, sx: ev.clientX, sy: ev.clientY, x: e.x ?? 0, y: e.y ?? 0 });
+    setDrag({ type: 'photo', page, id: e.id, sx: ev.clientX, sy: ev.clientY, x: e.x ?? 0, y: e.y ?? 0 });
   };
-  const movePhoto = (ev) => {
+  const startMaskDrag = (ev, page, exId, mask) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    setResize(null);
+    setDrag({ type: 'mask-move', page, exId, maskId: mask.id, sx: ev.clientX, sy: ev.clientY, x: mask.x, y: mask.y });
+  };
+  const startMaskResize = (ev, page, exId, mask) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    setResize(null);
+    setDrag({ type: 'mask-resize', page, exId, maskId: mask.id, sx: ev.clientX, sy: ev.clientY, width: mask.width, height: mask.height });
+  };
+  const moveDrag = (ev) => {
     if (!drag) return;
-    updateEx(drag.page, drag.id, { x: clamp(drag.x + ev.clientX - drag.sx, -250, 250), y: clamp(drag.y + ev.clientY - drag.sy, -250, 250) });
+    const dx = ev.clientX - drag.sx;
+    const dy = ev.clientY - drag.sy;
+    if (drag.type === 'photo') updateEx(drag.page, drag.id, { x: clamp(drag.x + dx, -250, 250), y: clamp(drag.y + dy, -250, 250) });
+    if (drag.type === 'mask-move') updateMask(drag.page, drag.exId, drag.maskId, { x: drag.x + dx, y: drag.y + dy });
+    if (drag.type === 'mask-resize') updateMask(drag.page, drag.exId, drag.maskId, { width: drag.width + dx, height: drag.height + dy });
   };
   const startResize = (ev, page, lower) => {
     ev.preventDefault();
@@ -128,7 +167,7 @@ export default function App6() {
     for (let k = 0; k < active.length; k += 1) {
       const node = pageRefs.current[active[k]];
       node.querySelectorAll('textarea').forEach((field) => field.blur());
-      const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#fff', ignoreElements: (el) => el.classList?.contains('photo-overlay-tools') });
+      const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#fff', ignoreElements: (el) => el.classList?.contains('photo-overlay-tools') || el.classList?.contains('mask-delete-button') || el.classList?.contains('mask-resize-handle') });
       if (k) pdf.addPage('a4', 'portrait');
       pdf.addImage(canvas.toDataURL('image/jpeg', 1), 'JPEG', 0, 0, 210, 297);
     }
@@ -141,12 +180,12 @@ export default function App6() {
     {i > 0 && <button type="button" className="resize-handle" onMouseDown={(ev) => startResize(ev, page, i)} aria-label="Modifier la hauteur" />}
     <div className="exercise-title exercise-title-controls">{kind === 'homework' ? <span>Exercice {startNum(page) + i}</span> : <><span>Exercice {startNum(page) + i} : </span><span className="points-decoration">* (</span><button onClick={() => changePoint(page, i, -1)}>−</button><strong>{fmt(e.points)}</strong><button onClick={() => changePoint(page, i, 1)}>+</button><span className="points-decoration">) *</span></>}</div>
     <div className="exercise-body clickable-photo-zone" onClick={() => !e.image && fileRefs.current[e.id]?.click()}>
-      {e.image && <div className="photo-overlay-tools" onClick={(ev) => ev.stopPropagation()}><button type="button" className="photo-tool-button" onClick={() => fileRefs.current[e.id]?.click()}>Changer photo</button><button type="button" className="photo-tool-button danger" onClick={() => clearImage(page, e.id)}>Supprimer</button><label className="photo-zoom-control">Zoom <input type="range" min="60" max="220" value={e.zoom ?? 100} onChange={(ev) => updateEx(page, e.id, { zoom: clamp(ev.target.value, 60, 220) })} /><span>{e.zoom ?? 100}%</span></label></div>}
-      {e.image ? <img className="draggable-photo" src={e.image.url ?? e.image} alt={e.image.name ?? 'exercice'} draggable="false" onMouseDown={(ev) => startPhotoDrag(ev, page, e)} style={{ transform: `translate(${e.x ?? 0}px, ${e.y ?? 0}px) scale(${(e.zoom ?? 100) / 100})` }} /> : <div className="empty-zone">Clique ici pour choisir la photo</div>}
+      {e.image && <div className="photo-overlay-tools" onClick={(ev) => ev.stopPropagation()}><button type="button" className="photo-tool-button" onClick={() => fileRefs.current[e.id]?.click()}>Changer photo</button><button type="button" className="photo-tool-button" onClick={() => addMask(page, e.id)}>Rectangle blanc</button><button type="button" className="photo-tool-button danger" onClick={() => clearImage(page, e.id)}>Supprimer</button><label className="photo-zoom-control">Zoom <input type="range" min="60" max="220" value={e.zoom ?? 100} onChange={(ev) => updateEx(page, e.id, { zoom: clamp(ev.target.value, 60, 220) })} /><span>{e.zoom ?? 100}%</span></label></div>}
+      {e.image ? <><img className="draggable-photo" src={e.image.url ?? e.image} alt={e.image.name ?? 'exercice'} draggable="false" onMouseDown={(ev) => startPhotoDrag(ev, page, e)} style={{ transform: `translate(${e.x ?? 0}px, ${e.y ?? 0}px) scale(${(e.zoom ?? 100) / 100})` }} />{(e.masks ?? []).map((m) => <div className="white-mask" key={m.id} onMouseDown={(ev) => startMaskDrag(ev, page, e.id, m)} style={{ left: `${m.x}px`, top: `${m.y}px`, width: `${m.width}px`, height: `${m.height}px` }}><button type="button" className="mask-delete-button" onMouseDown={(ev) => ev.stopPropagation()} onClick={(ev) => { ev.stopPropagation(); deleteMask(page, e.id, m.id); }}>×</button><span className="mask-resize-handle" onMouseDown={(ev) => startMaskResize(ev, page, e.id, m)} /></div>)}</> : <div className="empty-zone">Clique ici pour choisir la photo</div>}
     </div>
   </section>)}</div>;
 
-  return <main className={`app-shell ${resize ? 'is-resizing' : ''}`} onMouseMove={(ev) => { movePhoto(ev); moveResize(ev); }} onMouseUp={stopMove} onMouseLeave={stopMove}>
+  return <main className={`app-shell ${resize ? 'is-resizing' : ''}`} onMouseMove={(ev) => { moveDrag(ev); moveResize(ev); }} onMouseUp={stopMove} onMouseLeave={stopMove}>
     <section className="panel">
       <p className="eyebrow">A4 Exam Maker</p><h1>Créer une feuille A4 avec entête fixe</h1><p className="intro">Choisis le type de devoir, puis le nombre d’exercices par page.</p>
       <div className="form-group"><label>Type de devoir</label><div className="duration-control compact-control assignment-control"><button onClick={() => { setKind('individual'); setTitle(IND_TITLE); }} disabled={kind === 'individual'}>Individuel</button><button onClick={() => { setKind('homework'); setTitle(HOME_TITLE); }} disabled={kind === 'homework'}>À la maison</button></div></div>
