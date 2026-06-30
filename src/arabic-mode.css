@@ -262,3 +262,13 @@ body.a4-overview-mode .preview-zone .exam-page {
   margin-bottom: 0 !important;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.22) !important;
 }
+
+body.arabic-mode .panel .bar-ribbon-toggle::after {
+  content: 'سلم\A التنقيط' !important;
+  white-space: pre-line !important;
+  direction: rtl !important;
+  unicode-bidi: isolate !important;
+  text-align: center !important;
+  font-size: 11px !important;
+  line-height: 1.15 !important;
+}
