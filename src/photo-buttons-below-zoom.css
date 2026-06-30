@@ -22,6 +22,11 @@
 .bar-buttons {
   opacity: 0 !important;
   pointer-events: auto !important;
+  box-sizing: border-box !important;
+  width: 230px !important;
+  min-width: 230px !important;
+  height: 58px !important;
+  min-height: 58px !important;
   padding: 10px 10px 10px !important;
   margin: -10px -10px -10px !important;
   border-radius: 14px !important;
@@ -30,6 +35,8 @@
   grid-template-columns: repeat(6, 32px) !important;
   grid-template-rows: repeat(2, 18px) !important;
   gap: 3px !important;
+  align-content: center !important;
+  justify-content: center !important;
   transition: opacity 0.08s ease !important;
 }
 
