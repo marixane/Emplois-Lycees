@@ -65,7 +65,7 @@ function ensureDateControls() {
 
     var title = document.createElement('span');
     title.className = 'page-date-title';
-    title.textContent = 'Choisir date';
+    title.textContent = 'Date :';
 
     var input = document.createElement('input');
     input.type = 'date';
