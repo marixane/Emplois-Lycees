@@ -20,6 +20,18 @@ const AR_HEADER = {
   level: 'قسم : 2 باك ع.ف'
 };
 
+const DURATION_FR_TO_AR = {
+  '30 min': '30 د',
+  '2 h': '2 س',
+  '2 h 30': '2 س 30 د',
+  '3 h': '3 س',
+  '3 h 30': '3 س 30 د'
+};
+
+const DURATION_AR_TO_FR = Object.fromEntries(
+  Object.entries(DURATION_FR_TO_AR).map(([fr, ar]) => [ar, fr])
+);
+
 function setInputValue(selector, value) {
   var input = document.querySelector(selector);
   if (!input || input.value === value) return;
@@ -122,6 +134,14 @@ function syncLanguageButton() {
   button.textContent = window.__examLanguage === 'ar' ? 'Français' : 'العربية';
 }
 
+function syncDurationLabels() {
+  document.querySelectorAll('.tiny-duration-control strong').forEach(function (duration) {
+    var text = (duration.textContent || '').trim();
+    var next = window.__examLanguage === 'ar' ? DURATION_FR_TO_AR[text] : DURATION_AR_TO_FR[text];
+    if (next) duration.textContent = next;
+  });
+}
+
 function syncExerciseTitles() {
   document.querySelectorAll('.exam-exercise:not(.blank-exercise) .exercise-title-controls > span:first-child').forEach(function (span) {
     var controls = span.closest('.exercise-title-controls');
@@ -141,6 +161,7 @@ function syncLanguageMode() {
   document.documentElement.setAttribute('dir', 'ltr');
   syncLanguageButton();
   syncHeaderLanguage();
+  syncDurationLabels();
   syncExerciseTitles();
   if (typeof formatExercisePointLabels === 'function') formatExercisePointLabels();
 }
@@ -152,5 +173,6 @@ setTimeout(syncLanguageMode, 400);
 new MutationObserver(function () {
   syncLanguageButton();
   syncHeaderLanguage();
+  syncDurationLabels();
   syncExerciseTitles();
 }).observe(document.body, { childList: true, subtree: true });
