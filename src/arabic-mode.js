@@ -116,7 +116,7 @@ function syncLanguageButton() {
     individualButton = document.createElement('button');
     individualButton.className = 'individual-toggle';
     individualButton.type = 'button';
-    individualButton.textContent = 'Devoir\nindividuel';
+    individualButton.textContent = 'Devoir\nlibre';
     individualButton.addEventListener('click', function () {
       document.body.classList.toggle('no-title-points');
       var active = document.body.classList.contains('no-title-points');
@@ -132,7 +132,7 @@ function syncLanguageButton() {
 
   var isActive = document.body.classList.contains('no-title-points');
   individualButton.classList.toggle('active', !isActive);
-  individualButton.textContent = isActive ? 'Devoir\nlibre' : 'Devoir\nindividuel';
+  individualButton.textContent = isActive ? 'Devoir\nindividuel' : 'Devoir\nlibre';
   button.textContent = window.__examLanguage === 'ar' ? 'Français' : 'العربية';
 }
 
