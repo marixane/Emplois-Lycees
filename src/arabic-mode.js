@@ -31,14 +31,16 @@ const DURATION_FR_TO_AR = {
   '4 h': '4 س'
 };
 
-const DURATION_AR_TO_FR = Object.fromEntries(
-  Object.entries(DURATION_FR_TO_AR).map(([fr, ar]) => [ar, fr])
-);
+const DURATION_AR_TO_FR = {};
+Object.keys(DURATION_FR_TO_AR).forEach(function (fr) {
+  DURATION_AR_TO_FR[DURATION_FR_TO_AR[fr]] = fr;
+});
 
 function setInputValue(selector, value) {
   var input = document.querySelector(selector);
   if (!input || input.value === value) return;
-  var setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
+  var descriptor = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value');
+  var setter = descriptor && descriptor.set;
   if (setter) setter.call(input, value);
   else input.value = value;
   input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -171,15 +173,13 @@ function syncDurationLabels() {
   document.querySelectorAll('.tiny-duration-control strong').forEach(function (duration) {
     var text = (duration.textContent || '').trim();
     var next = window.__examLanguage === 'ar' ? DURATION_FR_TO_AR[text] : DURATION_AR_TO_FR[text];
-    if (next) duration.textContent = next;
+    if (next && duration.textContent !== next) duration.textContent = next;
   });
 }
 
 function scheduleDurationSync() {
   syncDurationLabels();
-  setTimeout(syncDurationLabels, 0);
   setTimeout(syncDurationLabels, 40);
-  setTimeout(syncDurationLabels, 120);
 }
 
 function bindDurationButtons() {
@@ -194,17 +194,18 @@ function syncExerciseTitles() {
   document.querySelectorAll('.exam-exercise:not(.blank-exercise) .exercise-title-controls > span:first-child').forEach(function (span) {
     var controls = span.closest('.exercise-title-controls');
     var text = span.textContent || '';
-    var match = text.match(/(?:Exercice|\u062a\u0645\u0631\u064a\u0646)\s*(\d+)/i);
+    var match = text.match(/(?:Exercice|تمرين)\s*(\d+)/i);
     if (!match) return;
     var isHomeworkTitle = controls && !controls.querySelector('button');
     var next = window.__examLanguage === 'ar'
-      ? '\u062a\u0645\u0631\u064a\u0646 ' + match[1] + (isHomeworkTitle ? '' : ' :')
+      ? 'تمرين ' + match[1] + (isHomeworkTitle ? '' : ' :')
       : 'Exercice ' + match[1] + (isHomeworkTitle ? '' : ' :');
     if (span.textContent !== next) span.textContent = next;
   });
 }
 
 function syncLanguageMode() {
+  if (!document.body) return;
   document.body.classList.toggle('arabic-mode', window.__examLanguage === 'ar');
   document.documentElement.setAttribute('dir', 'ltr');
   syncLanguageButton();
@@ -215,20 +216,22 @@ function syncLanguageMode() {
   bindDurationButtons();
   scheduleDurationSync();
   syncExerciseTitles();
-  if (typeof formatExercisePointLabels === 'function') formatExercisePointLabels();
+  if (typeof window.formatExercisePointLabels === 'function') window.formatExercisePointLabels();
+}
+
+var syncQueued = false;
+function queueLanguageSync() {
+  if (syncQueued) return;
+  syncQueued = true;
+  setTimeout(function () {
+    syncQueued = false;
+    syncLanguageMode();
+  }, 80);
 }
 
 syncLanguageMode();
-setTimeout(syncLanguageMode, 100);
-setTimeout(syncLanguageMode, 400);
+setTimeout(syncLanguageMode, 150);
 
-new MutationObserver(function () {
-  syncLanguageButton();
-  syncNotesLabel();
-  syncPageNumberLabels();
-  syncMenuPageLabels();
-  syncHeaderLanguage();
-  bindDurationButtons();
-  scheduleDurationSync();
-  syncExerciseTitles();
-}).observe(document.body, { childList: true, subtree: true });
+if (document.body && window.MutationObserver) {
+  new MutationObserver(queueLanguageSync).observe(document.body, { childList: true, subtree: true });
+}
