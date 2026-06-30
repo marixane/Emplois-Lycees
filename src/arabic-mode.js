@@ -140,6 +140,13 @@ function syncLanguageButton() {
   button.textContent = window.__examLanguage === 'ar' ? 'Français' : 'العربية';
 }
 
+function syncNotesLabel() {
+  var notesTitle = document.querySelector('.note-scale-title');
+  if (!notesTitle) return;
+  var next = window.__examLanguage === 'ar' ? 'النقط :' : 'Notes :';
+  if (notesTitle.textContent !== next) notesTitle.textContent = next;
+}
+
 function syncDurationLabels() {
   document.querySelectorAll('.tiny-duration-control strong').forEach(function (duration) {
     var text = (duration.textContent || '').trim();
@@ -181,6 +188,7 @@ function syncLanguageMode() {
   document.body.classList.toggle('arabic-mode', window.__examLanguage === 'ar');
   document.documentElement.setAttribute('dir', 'ltr');
   syncLanguageButton();
+  syncNotesLabel();
   syncHeaderLanguage();
   bindDurationButtons();
   scheduleDurationSync();
@@ -194,6 +202,7 @@ setTimeout(syncLanguageMode, 400);
 
 new MutationObserver(function () {
   syncLanguageButton();
+  syncNotesLabel();
   syncHeaderLanguage();
   bindDurationButtons();
   scheduleDurationSync();
