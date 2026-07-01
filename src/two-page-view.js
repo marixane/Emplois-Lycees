@@ -25,26 +25,27 @@ function autoEnableWhenSecondPageAppears(multiple) {
   lastMultiplePageState = multiple;
 }
 
-function getTwoPageZoomClass(scale) {
-  if (scale >= 0.98) return 'two-page-zoom-100';
-  if (scale >= 0.92) return 'two-page-zoom-95';
-  if (scale >= 0.86) return 'two-page-zoom-90';
-  if (scale >= 0.80) return 'two-page-zoom-84';
-  if (scale >= 0.74) return 'two-page-zoom-78';
-  if (scale >= 0.68) return 'two-page-zoom-72';
-  if (scale >= 0.62) return 'two-page-zoom-66';
-  return 'two-page-zoom-60';
+function getSteppedScale(rawScale) {
+  if (rawScale >= 0.98) return 1;
+  if (rawScale >= 0.94) return 0.95;
+  if (rawScale >= 0.88) return 0.90;
+  if (rawScale >= 0.82) return 0.84;
+  if (rawScale >= 0.76) return 0.78;
+  if (rawScale >= 0.70) return 0.72;
+  if (rawScale >= 0.64) return 0.66;
+  return 0.60;
 }
 
 function updateTwoPageZoom(enabled) {
-  document.body.classList.remove('two-page-zoom-100', 'two-page-zoom-95', 'two-page-zoom-90', 'two-page-zoom-84', 'two-page-zoom-78', 'two-page-zoom-72', 'two-page-zoom-66', 'two-page-zoom-60');
+  document.documentElement.style.removeProperty('--two-page-scale');
   if (!enabled) return;
 
   const panel = document.querySelector('.panel');
-  const available = Math.max(720, window.innerWidth - ((panel && panel.offsetWidth) || 190) - 42);
+  const panelWidth = (panel && panel.getBoundingClientRect().width) || 190;
+  const available = Math.max(520, window.innerWidth - panelWidth - 34);
   const natural = 794 * 2 + 16;
-  const scale = Math.min(1, Math.max(0.60, available / natural));
-  document.body.classList.add(getTwoPageZoomClass(scale));
+  const scale = getSteppedScale(Math.min(1, available / natural));
+  document.documentElement.style.setProperty('--two-page-scale', String(scale));
 }
 
 function syncTwoPageView() {
