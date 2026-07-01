@@ -1,3 +1,31 @@
+.app-shell {
+  display: grid !important;
+  grid-template-columns: minmax(150px, 380px) minmax(0, 1fr) !important;
+  grid-template-areas: 'menu preview' !important;
+  align-items: start !important;
+  overflow-x: hidden !important;
+}
+
+.panel {
+  grid-area: menu !important;
+}
+
+.preview-zone {
+  grid-area: preview !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  container-type: inline-size !important;
+  padding-bottom: 60px !important;
+}
+
+.preview-zone .a4-page {
+  transform-origin: top left !important;
+  transform: scale(clamp(0.26, calc(100cqw / 794), 1)) !important;
+  margin: 0 0 28px 0 !important;
+}
+
 @media (max-width: 1180px) {
   html,
   body,
@@ -7,16 +35,12 @@
   }
 
   .app-shell {
-    display: grid !important;
     grid-template-columns: 150px minmax(0, 1fr) !important;
-    grid-template-areas: 'menu preview' !important;
-    align-items: start !important;
     gap: 10px !important;
     overflow-x: hidden !important;
   }
 
   .panel {
-    grid-area: menu !important;
     display: flex !important;
     position: sticky !important;
     top: 0 !important;
@@ -24,12 +48,7 @@
   }
 
   .preview-zone {
-    grid-area: preview !important;
     display: block !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    overflow-x: hidden !important;
-    overflow-y: visible !important;
     padding: 18px 0 60px 0 !important;
     margin: 0 !important;
     align-self: start !important;
@@ -37,17 +56,13 @@
   }
 
   .preview-zone .a4-page {
-    transform-origin: top left !important;
-    transform: scale(clamp(0.34, calc((100vw - 172px) / 794), 1)) !important;
-    margin: 0 0 28px 0 !important;
+    transform: scale(clamp(0.24, calc(100cqw / 794), 1)) !important;
   }
 }
 
 @media (max-width: 760px) {
   .app-shell {
-    display: grid !important;
     grid-template-columns: 118px minmax(0, 1fr) !important;
-    grid-template-areas: 'menu preview' !important;
     gap: 5px !important;
     padding: 0 !important;
   }
@@ -69,7 +84,7 @@
   }
 
   .preview-zone .a4-page {
-    transform: scale(clamp(0.20, calc((100vw - 124px) / 794), 1)) !important;
+    transform: scale(clamp(0.18, calc(100cqw / 794), 1)) !important;
     transform-origin: top left !important;
   }
 }
@@ -88,6 +103,6 @@
   }
 
   .preview-zone .a4-page {
-    transform: scale(clamp(0.16, calc((100vw - 104px) / 794), 1)) !important;
+    transform: scale(clamp(0.14, calc(100cqw / 794), 1)) !important;
   }
 }
