@@ -35,14 +35,18 @@ function getSteppedScale(rawScale) {
   if (rawScale >= 0.64) return 0.66;
   if (rawScale >= 0.58) return 0.60;
   if (rawScale >= 0.52) return 0.54;
-  return 0.48;
+  if (rawScale >= 0.46) return 0.48;
+  if (rawScale >= 0.40) return 0.42;
+  if (rawScale >= 0.34) return 0.36;
+  if (rawScale >= 0.28) return 0.30;
+  return 0.24;
 }
 
 function updateSheetZoom(twoPageEnabled) {
   const panel = document.querySelector('.panel');
   const panelWidth = (panel && panel.getBoundingClientRect().width) || 180;
   const gap = twoPageEnabled ? 10 : 6;
-  const available = Math.max(260, window.innerWidth - panelWidth - gap - 18);
+  const available = Math.max(120, window.innerWidth - panelWidth - gap - 18);
   const natural = twoPageEnabled ? 794 * 2 + 16 : 794;
   const scale = getSteppedScale(Math.min(1, available / natural));
 
