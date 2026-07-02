@@ -3,7 +3,8 @@ function applyMobilePhoneForce() {
   if (existing) existing.remove();
 
   var viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-  var mobileScale = Math.min(1, Math.max(0.32, viewportWidth / 794));
+  var availableWidth = Math.max(240, viewportWidth - 16);
+  var mobileScale = Math.min(1, Math.max(0.32, availableWidth / 794));
   var mobileA4Gap = -Math.max(0, Math.round(1123 * (1 - mobileScale) - 40));
 
   var style = document.createElement('style');
@@ -18,6 +19,7 @@ function applyMobilePhoneForce() {
         margin: 0 !important;
         padding: 0 !important;
         overflow: hidden !important;
+        overflow-x: hidden !important;
       }
 
       body .education-top-navbar {
@@ -38,6 +40,7 @@ function applyMobilePhoneForce() {
         padding: 0 !important;
         margin: 0 !important;
         overflow: hidden !important;
+        overflow-x: hidden !important;
         flex-direction: initial !important;
         flex-wrap: initial !important;
         align-items: stretch !important;
@@ -198,7 +201,8 @@ function applyMobilePhoneForce() {
         gap: 6px !important;
         padding: 0 0 40px 0 !important;
         margin: 0 !important;
-        overflow: auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
         box-sizing: border-box !important;
         background: #e8edf4 !important;
         border-left: 0 !important;
