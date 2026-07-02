@@ -25,7 +25,7 @@ function clickExerciseCountButton(pageIndex, wanted) {
 }
 
 function ensureExerciseLineControlStyle() {
-  var css = '.exercise-line-count-controls{position:absolute!important;left:calc(50% + 190px)!important;top:11px!important;transform:translateX(-50%)!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:22px!important;column-gap:22px!important;pointer-events:auto!important;z-index:999!important}.exercise-line-count-controls button{width:48px!important;min-width:48px!important;height:24px!important;min-height:24px!important;border-radius:6px!important;border:1px solid #64748b!important;background:#ffffff!important;color:#0f172a!important;font-size:17px!important;font-weight:900!important;line-height:1!important;padding:0!important;margin:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important;box-sizing:border-box!important;box-shadow:0 1px 3px rgba(15,23,42,.18)!important}.exercise-line-count-controls button:hover{background:#e0f2fe!important;border-color:#2563eb!important;color:#1d4ed8!important}.exercise-line-count-controls button.minus:hover{background:#fee2e2!important;border-color:#dc2626!important;color:#b91c1c!important}.exercise-line-count-controls button:disabled{opacity:.35!important;cursor:not-allowed!important}body.no-title-points .exercise-line-count-controls,body.no-title-points .exercise-line-count-controls button{display:inline-flex!important}@media(max-width:1200px){.exercise-line-count-controls{left:calc(50% + 95px)!important;top:8px!important;gap:20px!important;column-gap:20px!important}.exercise-line-count-controls button{width:42px!important;min-width:42px!important;height:22px!important;min-height:22px!important;font-size:15px!important;border-radius:5px!important}}@media print{.exercise-line-count-controls{display:none!important}}';
+  var css = '.exercise-line-count-controls{position:absolute!important;left:calc(50% + 190px)!important;top:11px!important;transform:translateX(-50%)!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:22px!important;column-gap:22px!important;pointer-events:auto!important;z-index:999!important}.exercise-line-count-controls button{width:48px!important;min-width:48px!important;height:24px!important;min-height:24px!important;border-radius:6px!important;border:1px solid #64748b!important;background:#ffffff!important;color:#0f172a!important;font-size:17px!important;font-weight:900!important;line-height:1!important;padding:0!important;margin:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important;box-sizing:border-box!important;box-shadow:0 1px 3px rgba(15,23,42,.18)!important}.exercise-line-count-controls button:hover{background:#e0f2fe!important;border-color:#2563eb!important;color:#1d4ed8!important}.exercise-line-count-controls button.minus:hover{background:#fee2e2!important;border-color:#dc2626!important;color:#b91c1c!important}.exercise-line-count-controls button:disabled{opacity:.35!important;cursor:not-allowed!important}body.no-title-points .exercise-line-count-controls,body.no-title-points .exercise-line-count-controls button,body.arabic-mode .exercise-line-count-controls,body.arabic-mode .exercise-line-count-controls button{display:inline-flex!important}@media(max-width:1200px){.exercise-line-count-controls{left:calc(50% + 95px)!important;top:8px!important;gap:20px!important;column-gap:20px!important}.exercise-line-count-controls button{width:42px!important;min-width:42px!important;height:22px!important;min-height:22px!important;font-size:15px!important;border-radius:5px!important}}@media print{.exercise-line-count-controls{display:none!important}}';
   var style = document.getElementById('exercise-line-add-remove-style');
   if (!style) {
     style = document.createElement('style');
@@ -80,10 +80,7 @@ function syncExerciseLineControls() {
     if (!exercises.length) return;
 
     var lastExercise = exercises[exercises.length - 1];
-    var title = lastExercise.querySelector('.exercise-title');
-    if (!title) return;
-
-    if (getComputedStyle(title).position === 'static') title.style.position = 'relative';
+    if (getComputedStyle(lastExercise).position === 'static') lastExercise.style.position = 'relative';
 
     var controls = makeExerciseLineControls(pageIndex);
     var count = getVisibleExerciseCount(pageIndex);
@@ -92,13 +89,14 @@ function syncExerciseLineControls() {
     if (minus) minus.disabled = count <= 0;
     if (plus) plus.disabled = count >= 6 || (pageIndex > 0 && getVisibleExerciseCount(0) === 0);
 
-    title.appendChild(controls);
+    lastExercise.appendChild(controls);
   });
 }
 
 syncExerciseLineControls();
-setTimeout(syncExerciseLineControls, 200);
+setTimeout(syncExerciseLineControls, 100);
+setTimeout(syncExerciseLineControls, 250);
 setTimeout(syncExerciseLineControls, 700);
-setInterval(syncExerciseLineControls, 1200);
+setInterval(syncExerciseLineControls, 700);
 window.addEventListener('resize', syncExerciseLineControls);
 window.syncExerciseLineControls = syncExerciseLineControls;
