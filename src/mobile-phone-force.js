@@ -248,6 +248,32 @@ function applyMobilePhoneForce() {
         opacity: 0 !important;
       }
 
+      body .exam-page.has-bar-ribbon .exam-exercise .exercise-body {
+        border-left: 0 !important;
+        box-shadow: none !important;
+        padding-left: 0 !important;
+        background: repeating-linear-gradient(white 0px, white 28px, #ddd 29px) !important;
+      }
+
+      body .exam-page.has-bar-ribbon .exam-exercise .exercise-body::before,
+      body .exam-page.has-bar-ribbon .exam-exercise .exercise-body::after,
+      body .exam-page.has-bar-ribbon .exam-exercise::before,
+      body .exam-page.has-bar-ribbon .exam-exercise::after {
+        display: none !important;
+        content: none !important;
+        width: 0 !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+      }
+
+      body .bar-mark {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        color: #111 !important;
+      }
+
       body .preview-zone .a4-page:last-child,
       body .a4-page:last-child {
         margin-bottom: ${lastPageBottom}px !important;
