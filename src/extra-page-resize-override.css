@@ -2,36 +2,7 @@
   min-height: 15px !important;
 }
 
-.preview-zone .second-page .exam-exercise:only-child {
-  height: 840px !important;
-  flex: 0 1 auto !important;
-}
-
-.preview-zone .second-page .exercise-list:has(> .exam-exercise:nth-child(2):last-child) > .exam-exercise {
-  height: 420px !important;
-  flex: 0 1 auto !important;
-}
-
-.preview-zone .second-page .exercise-list:has(> .exam-exercise:nth-child(3):last-child) > .exam-exercise {
-  height: 280px !important;
-  flex: 0 1 auto !important;
-}
-
-.preview-zone .second-page .exercise-list:has(> .exam-exercise:nth-child(4):last-child) > .exam-exercise {
-  height: 210px !important;
-  flex: 0 1 auto !important;
-}
-
-.preview-zone .second-page .exercise-list:has(> .exam-exercise:nth-child(5):last-child) > .exam-exercise {
-  height: 168px !important;
-  flex: 0 1 auto !important;
-}
-
-.preview-zone .second-page .exercise-list:has(> .exam-exercise:nth-child(6):last-child) > .exam-exercise {
-  height: 140px !important;
-  flex: 0 1 auto !important;
-}
-
 .preview-zone .second-page .exam-exercise:last-child {
+  flex: 1 1 15px !important;
   min-height: 15px !important;
 }
