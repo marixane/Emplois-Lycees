@@ -97,11 +97,34 @@ function forceExerciseBottomFrame(clone) {
 
 function forcePdfLineBackground(clone) {
   const hideLines = clone.classList.contains('no-pdf-lines');
-  const lineBackground = 'repeating-linear-gradient(to bottom, #ffffff 0px, #ffffff 28px, #d9d9d9 28px, #d9d9d9 29px)';
   clone.querySelectorAll('.exercise-body').forEach(function (body) {
+    body.querySelectorAll('.pdf-real-line').forEach(function (line) { line.remove(); });
+    body.style.setProperty('position', 'relative', 'important');
+    body.style.setProperty('background', '#ffffff', 'important');
     body.style.setProperty('background-color', '#ffffff', 'important');
-    body.style.setProperty('background-image', hideLines ? 'none' : lineBackground, 'important');
-    body.style.setProperty('background-repeat', 'repeat', 'important');
+    body.style.setProperty('background-image', 'none', 'important');
+
+    if (hideLines) return;
+
+    const height = Math.max(0, body.offsetHeight || body.getBoundingClientRect().height || 0);
+    for (let y = 28; y < height; y += 29) {
+      const line = document.createElement('div');
+      line.className = 'pdf-real-line';
+      line.style.setProperty('position', 'absolute', 'important');
+      line.style.setProperty('left', '0', 'important');
+      line.style.setProperty('right', '0', 'important');
+      line.style.setProperty('top', y + 'px', 'important');
+      line.style.setProperty('height', '1px', 'important');
+      line.style.setProperty('background', '#d9d9d9', 'important');
+      line.style.setProperty('z-index', '0', 'important');
+      line.style.setProperty('pointer-events', 'none', 'important');
+      body.insertBefore(line, body.firstChild);
+    }
+
+    body.querySelectorAll('img, .white-mask, .draggable-photo, .empty-zone').forEach(function (el) {
+      el.style.setProperty('position', 'relative', 'important');
+      el.style.setProperty('z-index', '2', 'important');
+    });
   });
 }
 
@@ -134,9 +157,9 @@ function preparePdfClone(original) {
   const linesToggle = document.querySelector('.pdf-lines-toggle');
   const hideLines = linesToggle && String(linesToggle.textContent || '').toLowerCase().includes('masquées');
   clone.classList.toggle('no-pdf-lines', !!hideLines);
-  forcePdfLineBackground(clone);
 
   if (original.classList.contains('second-page')) stretchExtraPageForPdf(clone);
+  forcePdfLineBackground(clone);
   forceExerciseBottomFrame(clone);
 
   return clone;
