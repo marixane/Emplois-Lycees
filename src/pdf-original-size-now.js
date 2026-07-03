@@ -37,7 +37,7 @@ function stretchExtraPageForPdf(clone) {
   if (!exercises.length) return;
 
   const pageHeight = 1123;
-  const footerGap = 62;
+  const footerGap = 95;
   const top = list.offsetTop || 0;
   const gap = Math.max(0, (exercises.length - 1) * 2);
   const available = Math.max(120, pageHeight - top - footerGap);
