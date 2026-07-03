@@ -27,101 +27,48 @@ function findCountButton(pageIndex, wanted) {
   }) || null;
 }
 
-function getPageIndexFromControl(control) {
-  var page = control && control.closest && control.closest('.a4-page');
-  if (!page) return 0;
-  return Array.from(document.querySelectorAll('.a4-page')).indexOf(page);
-}
-
 function refreshSoon() {
   setTimeout(syncExerciseLineControls, 20);
   setTimeout(syncExerciseLineControls, 70);
-  setTimeout(syncExerciseLineControls, 150);
-  setTimeout(syncExerciseLineControls, 320);
+  setTimeout(syncExerciseLineControls, 160);
+  setTimeout(syncExerciseLineControls, 340);
 }
 
-function nativeClick(button) {
-  if (!button) return;
-  button.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window }));
-  button.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, view: window }));
-  button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+function pressOriginalCount(pageIndex, wanted) {
+  var button = findCountButton(pageIndex, wanted);
+  if (!button) return false;
+  button.click();
+  refreshSoon();
+  return true;
 }
 
-function retryAddFirstExercise(pageIndex, triesLeft) {
+function retryFirstAdd(pageIndex, triesLeft) {
   if (getRealExerciseCount(pageIndex) > 0 || triesLeft <= 0) {
     refreshSoon();
     return;
   }
-
-  var button = findCountButton(pageIndex, '+');
-  nativeClick(button);
-  refreshSoon();
-
-  setTimeout(function () {
-    retryAddFirstExercise(pageIndex, triesLeft - 1);
-  }, 120);
+  pressOriginalCount(pageIndex, '+');
+  setTimeout(function () { retryFirstAdd(pageIndex, triesLeft - 1); }, 120);
 }
 
-function clickExerciseCountButton(pageIndex, wanted) {
+function runCountAction(pageIndex, wanted) {
   var before = getRealExerciseCount(pageIndex);
-  var button = findCountButton(pageIndex, wanted);
-  if (!button) return false;
-
-  nativeClick(button);
-  refreshSoon();
+  var ok = pressOriginalCount(pageIndex, wanted);
+  if (!ok) return;
 
   if ((wanted === '-' || wanted === '−') && before === 1) {
     setTimeout(function () {
-      if (getRealExerciseCount(pageIndex) !== 0) clickExerciseCountButton(pageIndex, '-');
-    }, 80);
+      if (getRealExerciseCount(pageIndex) !== 0) pressOriginalCount(pageIndex, '-');
+    }, 90);
   }
 
   if (wanted === '+' && before === 0) {
-    setTimeout(function () {
-      retryAddFirstExercise(pageIndex, 6);
-    }, 80);
+    setTimeout(function () { retryFirstAdd(pageIndex, 6); }, 90);
   }
-
-  return true;
-}
-
-function runExerciseButtonOnce(event, pageIndex, wanted) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  var now = Date.now();
-  var key = pageIndex + ':' + wanted;
-  window.__exerciseButtonTapTimes = window.__exerciseButtonTapTimes || {};
-  if (window.__exerciseButtonTapTimes[key] && now - window.__exerciseButtonTapTimes[key] < 180) return;
-  window.__exerciseButtonTapTimes[key] = now;
-
-  clickExerciseCountButton(pageIndex, wanted);
-}
-
-function installExerciseButtonImmediateTap() {
-  if (window.__exerciseImmediateTapInstalled) return;
-  window.__exerciseImmediateTapInstalled = true;
-
-  function handle(event) {
-    var button = event.target && event.target.closest && event.target.closest('.exercise-line-count-controls button');
-    if (!button || button.disabled) return;
-    var control = button.closest('.exercise-line-count-controls');
-    var pageIndex = getPageIndexFromControl(control);
-    if (pageIndex < 0) return;
-    var wanted = button.classList.contains('minus') ? '-' : '+';
-    runExerciseButtonOnce(event, pageIndex, wanted);
-  }
-
-  document.addEventListener('touchstart', handle, { passive: false, capture: true });
-  document.addEventListener('pointerdown', function (event) {
-    if (event.pointerType === 'touch') handle(event);
-  }, { passive: false, capture: true });
 }
 
 function ensureExerciseLineControlStyle() {
-  var css = '.exercise-line-count-controls{position:absolute!important;left:calc(50% + 0px)!important;top:3px!important;transform:translateX(-50%)!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:17px!important;column-gap:17px!important;pointer-events:auto!important;z-index:5000!important}.a4-page>.exercise-line-count-controls{top:calc(var(--exam-header-height,104px) + 5px)!important}.exercise-line-count-controls button{position:relative!important;z-index:5001!important;width:48px!important;min-width:48px!important;height:24px!important;min-height:24px!important;border-radius:6px!important;border:1px solid #64748b!important;background:#ffffff!important;color:#0f172a!important;font-size:17px!important;font-weight:900!important;line-height:1!important;padding:0!important;margin:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important;box-sizing:border-box!important;box-shadow:0 1px 3px rgba(15,23,42,.18)!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}.exercise-line-count-controls button:hover{background:#e0f2fe!important;border-color:#2563eb!important;color:#1d4ed8!important}.exercise-line-count-controls button.minus:hover{background:#fee2e2!important;border-color:#dc2626!important;color:#b91c1c!important}.exercise-line-count-controls button:disabled{opacity:.35!important;cursor:not-allowed!important}body.no-title-points .exercise-line-count-controls,body.no-title-points .exercise-line-count-controls button,body.arabic-mode .exercise-line-count-controls,body.arabic-mode .exercise-line-count-controls button{display:inline-flex!important}@media(max-width:1200px){.exercise-line-count-controls{left:calc(50% + 5px)!important;top:0px!important;gap:15px!important;column-gap:15px!important}.a4-page>.exercise-line-count-controls{top:calc(var(--exam-header-height,104px) + 4px)!important}.exercise-line-count-controls button{width:50px!important;min-width:50px!important;height:34px!important;min-height:34px!important;font-size:18px!important;border-radius:8px!important;touch-action:none!important}}@media print{.exercise-line-count-controls{display:none!important}}';
+  var css = '.exercise-line-count-overlay{position:fixed!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:16px!important;z-index:99999!important;pointer-events:auto!important;transform:translateX(-50%)!important}.exercise-line-count-overlay button{width:52px!important;min-width:52px!important;height:34px!important;min-height:34px!important;border-radius:8px!important;border:1px solid #64748b!important;background:#ffffff!important;color:#0f172a!important;font-size:19px!important;font-weight:900!important;line-height:1!important;padding:0!important;margin:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important;box-sizing:border-box!important;box-shadow:0 2px 5px rgba(15,23,42,.2)!important;-webkit-tap-highlight-color:transparent!important}.exercise-line-count-overlay button:hover{background:#e0f2fe!important;border-color:#2563eb!important;color:#1d4ed8!important}.exercise-line-count-overlay button.minus:hover{background:#fee2e2!important;border-color:#dc2626!important;color:#b91c1c!important}.exercise-line-count-overlay button:disabled{opacity:.35!important;cursor:not-allowed!important}@media(max-width:1200px){.exercise-line-count-overlay{gap:14px!important}.exercise-line-count-overlay button{width:54px!important;min-width:54px!important;height:36px!important;min-height:36px!important;font-size:20px!important}}@media print{.exercise-line-count-overlay{display:none!important}}';
   var style = document.getElementById('exercise-line-add-remove-style');
   if (!style) {
     style = document.createElement('style');
@@ -131,57 +78,46 @@ function ensureExerciseLineControlStyle() {
   style.textContent = css;
 }
 
-function makeExerciseLineControls(pageIndex) {
-  var controls = document.createElement('div');
-  controls.className = 'exercise-line-count-controls';
-
-  var minus = document.createElement('button');
-  minus.type = 'button';
-  minus.className = 'minus';
-  minus.textContent = '−';
-  minus.title = 'Supprimer un exercice';
-
-  var plus = document.createElement('button');
-  plus.type = 'button';
-  plus.className = 'plus';
-  plus.textContent = '+';
-  plus.title = 'Ajouter un exercice';
-
-  minus.addEventListener('click', function (event) {
-    runExerciseButtonOnce(event, pageIndex, '-');
+function makeButton(label, className, pageIndex, wanted) {
+  var button = document.createElement('button');
+  button.type = 'button';
+  button.className = className;
+  button.textContent = label;
+  button.addEventListener('pointerdown', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    runCountAction(pageIndex, wanted);
   });
-
-  plus.addEventListener('click', function (event) {
-    runExerciseButtonOnce(event, pageIndex, '+');
+  button.addEventListener('click', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
   });
-
-  controls.appendChild(minus);
-  controls.appendChild(plus);
-  return controls;
+  return button;
 }
 
 function syncExerciseLineControls() {
   ensureExerciseLineControlStyle();
-  installExerciseButtonImmediateTap();
+  document.querySelectorAll('.exercise-line-count-controls,.exercise-line-count-overlay').forEach(function (old) { old.remove(); });
 
   document.querySelectorAll('.a4-page').forEach(function (pageNode, pageIndex) {
-    pageNode.querySelectorAll('.exercise-line-count-controls').forEach(function (old) { old.remove(); });
+    var rect = pageNode.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
 
-    if (getComputedStyle(pageNode).position === 'static') pageNode.style.position = 'relative';
-
-    var visibleExercises = Array.from(pageNode.querySelectorAll('.exam-exercise')).filter(function (exercise) {
-      return !exercise.classList.contains('blank-exercise');
-    });
-
-    var controls = makeExerciseLineControls(pageIndex);
     var count = getVisibleExerciseCount(pageIndex);
-    var realCount = visibleExercises.length;
-    var minus = controls.querySelector('.minus');
-    var plus = controls.querySelector('.plus');
-    if (minus) minus.disabled = realCount <= 0;
-    if (plus) plus.disabled = count >= 6 || (pageIndex > 0 && getVisibleExerciseCount(0) === 0);
+    var realCount = getRealExerciseCount(pageIndex);
+    var controls = document.createElement('div');
+    controls.className = 'exercise-line-count-overlay';
+    controls.style.left = (rect.left + rect.width / 2) + 'px';
+    controls.style.top = (rect.top + Math.max(40, rect.height * 0.1)) + 'px';
 
-    pageNode.appendChild(controls);
+    var minus = makeButton('−', 'minus', pageIndex, '-');
+    var plus = makeButton('+', 'plus', pageIndex, '+');
+    minus.disabled = realCount <= 0;
+    plus.disabled = count >= 6 || (pageIndex > 0 && getVisibleExerciseCount(0) === 0);
+
+    controls.appendChild(minus);
+    controls.appendChild(plus);
+    document.body.appendChild(controls);
   });
 }
 
@@ -189,6 +125,7 @@ syncExerciseLineControls();
 setTimeout(syncExerciseLineControls, 100);
 setTimeout(syncExerciseLineControls, 250);
 setTimeout(syncExerciseLineControls, 700);
-setInterval(syncExerciseLineControls, 700);
+setInterval(syncExerciseLineControls, 500);
 window.addEventListener('resize', syncExerciseLineControls);
+window.addEventListener('scroll', syncExerciseLineControls, true);
 window.syncExerciseLineControls = syncExerciseLineControls;
