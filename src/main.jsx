@@ -77,6 +77,7 @@ import './exercise-line-add-remove-controls.js';
 import './transparent-bar-points.css';
 import './fixed-button-positions.js';
 import './pdf-original-size-now.js';
+import './mobile-pdf-touch-fix.js';
 import './mobile-phone-settings.css';
 import './arabic-no-mirror.css';
 import './arabic-fixed-proxy-buttons.css';
