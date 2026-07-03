@@ -59,9 +59,11 @@ function syncTwoPageView() {
   button.classList.toggle('on', enabled);
   button.classList.toggle('off', !enabled);
   button.disabled = !multiple;
-  button.innerHTML = enabled ? '<span class="two-page-icon two-page-icon-2" aria-hidden="true"><i></i><i></i></span>' : '<span class="two-page-icon two-page-icon-1" aria-hidden="true"><i></i></span>';
-  button.setAttribute('aria-label', enabled ? 'Affichage 2 pages côte à côte' : 'Affichage 1 page');
-  button.title = multiple ? (enabled ? 'Afficher 1 page' : 'Afficher 2 pages côte à côte') : 'Ajoute une 2e feuille pour activer cet affichage';
+  if (!button.querySelector('.two-page-icon')) {
+    button.innerHTML = '<span class="two-page-icon two-page-icon-2" aria-hidden="true"><i></i><i></i></span>';
+  }
+  button.setAttribute('aria-label', enabled ? 'Affichage 2 pages côte à côte actif' : 'Affichage 2 pages côte à côte désactivé');
+  button.title = multiple ? (enabled ? 'Désactiver 2 pages côte à côte' : 'Activer 2 pages côte à côte') : 'Ajoute une 2e feuille pour activer cet affichage';
 }
 
 function ensureTwoPageViewButton() {
@@ -71,6 +73,7 @@ function ensureTwoPageViewButton() {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'two-page-view-toggle off';
+  button.innerHTML = '<span class="two-page-icon two-page-icon-2" aria-hidden="true"><i></i><i></i></span>';
   button.addEventListener('click', function () {
     if (!hasMultiplePages()) return;
     setTwoPageView(!isTwoPageViewEnabled());
