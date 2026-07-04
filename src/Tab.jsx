@@ -9,7 +9,7 @@ const cloneCell = (cell) => ({ ...normalizeCell(cell), hidden: false });
 const clampRoom = (value) => Math.min(Math.max(Number(value) || 1, 1), 80);
 
 const getCellColor = (text) => {
-  const normalized = String(text ?? '').trim().toLowerCase();
+  const normalized = String(text ?? '').toLowerCase().replace(/[\s-]/g, '').trim();
   if (!normalized) return 'white';
 
   let hash = 0;
