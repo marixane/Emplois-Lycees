@@ -4,6 +4,7 @@ const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 const HOURS = ['08:00 - 09:00', '09:00 - 10:00', '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00'];
 
 const createCell = () => ({ text: '', room: 1, span: 1, hidden: false });
+const cloneCell = (cell) => ({ ...normalizeCell(cell), hidden: false });
 const clampRoom = (value) => Math.min(Math.max(Number(value) || 1, 1), 80);
 
 const createRows = () => DAYS.map((day) => ({
@@ -30,6 +31,8 @@ export default function Tab() {
   const [year, setYear] = useState('Année scolaire : 2026 / 2027');
   const [hours, setHours] = useState(HOURS);
   const [rows, setRows] = useState(createRows);
+  const [copiedCell, setCopiedCell] = useState(null);
+  const [selectedCell, setSelectedCell] = useState(null);
 
   const validateOnEnter = (event) => {
     if (event.key !== 'Enter') return;
@@ -78,6 +81,46 @@ export default function Tab() {
     if (!cell.text.trim() || nextIndex >= hours.length) return false;
     const next = normalizeCell(row.cells[hours[nextIndex]]);
     return !next.hidden && !next.text.trim();
+  };
+
+  const canPasteCell = (row, hourIndex, cellToPaste) => {
+    const sourceCell = normalizeCell(cellToPaste);
+    if (!sourceCell.text.trim()) return false;
+    if (hourIndex + sourceCell.span > hours.length) return false;
+
+    for (let index = hourIndex; index < hourIndex + sourceCell.span; index += 1) {
+      const target = normalizeCell(row.cells[hours[index]]);
+      if (target.hidden || target.text.trim()) return false;
+    }
+
+    return true;
+  };
+
+  const handleCellClick = (dayIndex, hourIndex, cell) => {
+    const normalized = normalizeCell(cell);
+    const key = `${dayIndex}-${hourIndex}`;
+
+    if (normalized.text.trim()) {
+      setCopiedCell(cloneCell(normalized));
+      setSelectedCell(key);
+      return;
+    }
+
+    if (!copiedCell) return;
+
+    setRows((current) => current.map((row, i) => {
+      if (i !== dayIndex || !canPasteCell(row, hourIndex, copiedCell)) return row;
+      const pasted = cloneCell(copiedCell);
+      const nextCells = { ...row.cells, [hours[hourIndex]]: pasted };
+
+      for (let index = hourIndex + 1; index < hourIndex + pasted.span; index += 1) {
+        nextCells[hours[index]] = { ...createCell(), hidden: true };
+      }
+
+      return { ...row, cells: nextCells };
+    }));
+
+    setSelectedCell(`${dayIndex}-${hourIndex}`);
   };
 
   const extendCellLeft = (dayIndex, hourIndex) => {
@@ -164,10 +207,16 @@ export default function Tab() {
                 const cell = normalizeCell(row.cells[hour]);
                 if (cell.hidden) return null;
                 const hasClass = Boolean(cell.text.trim());
+                const cellKey = `${dayIndex}-${hourIndex}`;
+                const canPasteHere = !hasClass && copiedCell && canPasteCell(row, hourIndex, copiedCell);
 
                 return <td key={`${hour}-${hourIndex}`} colSpan={cell.span}>
-                  <div className="timetable-cell-content">
-                    {hasClass && <div className="span-tools no-print">
+                  <div
+                    className={`timetable-cell-content ${selectedCell === cellKey ? 'selected-cell' : ''} ${canPasteHere ? 'paste-ready-cell' : ''}`}
+                    onClick={() => handleCellClick(dayIndex, hourIndex, cell)}
+                    title={hasClass ? 'Cliquer pour copier cette cellule' : copiedCell ? 'Cliquer pour coller ici' : ''}
+                  >
+                    {hasClass && <div className="span-tools no-print" onClick={(e) => e.stopPropagation()}>
                       <button type="button" onClick={() => extendCellLeft(dayIndex, hourIndex)} disabled={!canExtendLeft(row, hourIndex)}>‹</button>
                       {cell.span > 1 && <button type="button" className="span-remove-button" onClick={() => shrinkCellRight(dayIndex, hourIndex)}>×</button>}
                       <button type="button" onClick={() => extendCellRight(dayIndex, hourIndex)} disabled={!canExtendRight(row, hourIndex)}>›</button>
@@ -175,11 +224,12 @@ export default function Tab() {
                     <textarea
                       value={cell.text}
                       onChange={(e) => updateCellText(dayIndex, hour, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
                       onKeyDown={validateOnEnter}
-                      placeholder="Classe / matière"
+                      placeholder={copiedCell ? 'Cliquer ici pour coller' : 'Classe / matière'}
                       rows="4"
                     />
-                    {hasClass && <label className="room-control">
+                    {hasClass && <label className="room-control" onClick={(e) => e.stopPropagation()}>
                       <span>Salle</span>
                       <input
                         type="number"
