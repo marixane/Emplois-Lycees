@@ -22,6 +22,7 @@ const getExamDateObject = (monthDate) => {
   return new Date(month >= 9 ? startYear : startYear + 1, month - 1, day);
 };
 
+const getExamTime = (monthDate) => getExamDateObject(monthDate).getTime();
 const getExamDisplayDay = (monthDate) => EXAM_DAYS[getExamDateObject(monthDate).getDay()];
 
 const getExamRangeDates = ({ start, end }) => {
@@ -42,11 +43,49 @@ const getEntryMonthDate = (entry) => {
   return match?.[0] || '';
 };
 
-const getTemplateEntry = (entries, event) => {
-  const eventStart = getExamDateObject(event.start).getTime();
+const getPageGroupKey = (page) => String(page.firstElementChild?.firstElementChild?.textContent || 'Groupe').trim();
+
+const getBaseEntries = (page) => Array.from(page.querySelectorAll('.homework-entry:not(.cahier-event-inserted)'));
+
+const getPageBounds = (page) => {
+  const times = getBaseEntries(page)
+    .map(getEntryMonthDate)
+    .filter(Boolean)
+    .map(getExamTime)
+    .filter((time) => Number.isFinite(time));
+  if (!times.length) return null;
+  return { min: Math.min(...times), max: Math.max(...times) };
+};
+
+const getTargetPageForEvent = (groupPages, event) => {
+  const eventStart = getExamTime(event.start);
+  const eventEnd = getExamTime(event.end);
+
+  const pageWithExactDate = groupPages.find((page) => {
+    const entries = getBaseEntries(page);
+    const rangeDates = getExamRangeDates(event);
+    return entries.some((entry) => rangeDates.some((date) => entryHasMonthDate(entry, date)));
+  });
+  if (pageWithExactDate) return pageWithExactDate;
+
+  const pageCoveringEvent = groupPages.find((page) => {
+    const bounds = getPageBounds(page);
+    return bounds && eventStart <= bounds.max && eventEnd >= bounds.min;
+  });
+  if (pageCoveringEvent) return pageCoveringEvent;
+
+  return groupPages.find((page) => {
+    const bounds = getPageBounds(page);
+    return bounds && bounds.max >= eventStart;
+  }) || groupPages[groupPages.length - 1];
+};
+
+const getTemplateEntry = (page, event) => {
+  const entries = getBaseEntries(page);
+  const eventStart = getExamTime(event.start);
   return entries.find((entry) => {
     const entryMonthDate = getEntryMonthDate(entry);
-    return entryMonthDate && getExamDateObject(entryMonthDate).getTime() >= eventStart;
+    return entryMonthDate && getExamTime(entryMonthDate) >= eventStart;
   }) || entries[entries.length - 1];
 };
 
@@ -89,30 +128,44 @@ const setHolidayEntryContent = (entry, event) => {
   if (subjectNode) subjectNode.innerHTML = '';
 };
 
-const placeEventEntry = (entries, event, eventEntry) => {
-  const eventStart = getExamDateObject(event.start).getTime();
+const placeEventEntry = (page, event, eventEntry) => {
+  const entries = getBaseEntries(page);
+  const eventStart = getExamTime(event.start);
   const nextEntry = entries.find((entry) => {
     const entryMonthDate = getEntryMonthDate(entry);
-    return entryMonthDate && getExamDateObject(entryMonthDate).getTime() > eventStart;
+    return entryMonthDate && getExamTime(entryMonthDate) > eventStart;
   });
   if (nextEntry) nextEntry.before(eventEntry);
   else entries[entries.length - 1]?.after(eventEntry);
 };
 
-const insertEvents = (page, events, eventClass, setter) => {
-  events.forEach((event) => {
-    const entries = Array.from(page.querySelectorAll('.homework-entry:not(.cahier-event-inserted)'));
-    if (!entries.length) return;
+const hideCoveredNormalEntries = (page, event) => {
+  const rangeDates = getExamRangeDates(event);
+  getBaseEntries(page).forEach((entry) => {
+    if (rangeDates.some((date) => entryHasMonthDate(entry, date))) entry.classList.add('cahier-exam-hidden');
+  });
+};
 
-    const rangeDates = getExamRangeDates(event);
-    const matchingEntries = entries.filter((entry) => rangeDates.some((date) => entryHasMonthDate(entry, date)));
-    const existingEntry = matchingEntries[0];
-    const eventEntry = existingEntry || cloneEntryForEvent(getTemplateEntry(entries, event), event, eventClass);
-    if (!eventEntry) return;
+const insertEventsOncePerGroup = (pages, events, eventClass, setter) => {
+  const groups = pages.reduce((map, page) => {
+    const key = getPageGroupKey(page);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(page);
+    return map;
+  }, new Map());
 
-    setter(eventEntry, event);
-    if (!existingEntry) placeEventEntry(entries, event, eventEntry);
-    matchingEntries.slice(1).forEach((entry) => entry.classList.add('cahier-exam-hidden'));
+  groups.forEach((groupPages) => {
+    events.forEach((event) => {
+      const targetPage = getTargetPageForEvent(groupPages, event);
+      if (!targetPage) return;
+
+      const eventEntry = cloneEntryForEvent(getTemplateEntry(targetPage, event), event, eventClass);
+      if (!eventEntry) return;
+
+      setter(eventEntry, event);
+      placeEventEntry(targetPage, event, eventEntry);
+      hideCoveredNormalEntries(targetPage, event);
+    });
   });
 };
 
@@ -126,10 +179,10 @@ const applyCahierExamEvents = () => {
     page.querySelectorAll('.homework-entry.cahier-exam-entry').forEach((entry) => entry.classList.remove('cahier-exam-entry'));
     page.querySelectorAll('.homework-entry.cahier-extra-holiday-entry').forEach((entry) => entry.classList.remove('cahier-extra-holiday-entry'));
     page.querySelectorAll('.homework-entry.cahier-exam-hidden').forEach((entry) => entry.classList.remove('cahier-exam-hidden'));
-
-    insertEvents(page, EXTRA_HOLIDAY_EVENTS, 'cahier-extra-holiday-entry', setHolidayEntryContent);
-    insertEvents(page, EXAM_EVENTS, 'cahier-exam-entry', setExamEntryContent);
   });
+
+  insertEventsOncePerGroup(pages, EXTRA_HOLIDAY_EVENTS, 'cahier-extra-holiday-entry', setHolidayEntryContent);
+  insertEventsOncePerGroup(pages, EXAM_EVENTS, 'cahier-exam-entry', setExamEntryContent);
 
   return true;
 };
