@@ -139,7 +139,7 @@ export default function Tab() {
       const sessions = (sessionsByDay[dayIndex] ?? []).filter((session) => classSet.has(session.className));
       if (!sessions.length) return null;
       const dayNumber = String(index + 1).padStart(2, '0');
-      return { date: `${String(rows[dayIndex]?.day || DAYS[dayIndex]).toUpperCase()} ${dayNumber}/09`, sessions, text: DOT_TEXT, color: HOMEWORK_COLORS[groupIndex % HOMEWORK_COLORS.length] };
+      return { date: `${String(rows[dayIndex]?.day || DAYS[dayIndex]).toUpperCase()} ${dayNumber}/09`, sessions, text: DOT_TEXT, color: HOMEWORK_COLORS[dayIndex % HOMEWORK_COLORS.length] };
     }).filter(Boolean);
 
     return { title: GROUP_TITLES[groupIndex], color: GROUP_COLORS[groupIndex], pages: chunkEntries(entries, 5) };
