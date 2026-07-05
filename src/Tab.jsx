@@ -3,14 +3,8 @@ import { useState } from 'react';
 const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 const HOURS = ['08:00 - 09:00', '09:00 - 10:00', '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00'];
 const CELL_COLORS = ['#fff3bf', '#d8f3dc', '#dbeafe', '#ffe4e6', '#ede9fe', '#cffafe', '#fef3c7', '#dcfce7', '#e0e7ff', '#fce7f3', '#ccfbf1', '#f5f5f4', '#fbcfe8', '#bfdbfe', '#bbf7d0', '#fed7aa', '#ddd6fe', '#bae6fd', '#fecdd3', '#ccfbf1'];
+const HOMEWORK_COLORS = ['#66c43f', '#b34bd7', '#2f80ed', '#ff3f5f', '#f2994a'];
 const DOT_TEXT = Array.from({ length: 4 }, () => '.'.repeat(74)).join('\n');
-const HOMEWORK_ENTRIES = [
-  ['LUNDI 15 AVRIL', '', DOT_TEXT, '#66c43f'],
-  ['MARDI 16 AVRIL', '', DOT_TEXT, '#b34bd7'],
-  ['MERCREDI 17 AVRIL', '', DOT_TEXT, '#2f80ed'],
-  ['JEUDI 18 AVRIL', '', DOT_TEXT, '#ff3f5f'],
-  ['VENDREDI 19 AVRIL', '', DOT_TEXT, '#f2994a']
-];
 
 const createCell = () => ({ text: '', room: 1, span: 1, hidden: false });
 const clampRoom = (value) => Math.min(Math.max(Number(value) || 1, 1), 80);
@@ -49,6 +43,7 @@ const getSchoolYear = () => {
   return `Année scolaire : ${startYear} / ${startYear + 1}`;
 };
 const createRows = () => DAYS.map((day) => ({ day, cells: HOURS.reduce((acc, hour) => ({ ...acc, [hour]: createCell() }), {}) }));
+const getHourStart = (hour) => String(hour ?? '').split('-')[0].trim();
 
 export default function Tab() {
   const [school, setSchool] = useState('Établissement :');
@@ -80,6 +75,22 @@ export default function Tab() {
   const updateDay = (index, value) => setRows((current) => current.map((row, i) => i === index ? { ...row, day: value } : row));
   const updateCellText = (dayIndex, hour, value) => setRows((current) => current.map((row, i) => i === dayIndex ? { ...row, cells: { ...row.cells, [hour]: { ...normalizeCell(row.cells[hour]), text: value } } } : row));
   const updateRoom = (dayIndex, hour, value) => setRows((current) => current.map((row, i) => i === dayIndex ? { ...row, cells: { ...row.cells, [hour]: { ...normalizeCell(row.cells[hour]), room: clampRoom(value) } } } : row));
+
+  const homeworkEntries = rows.slice(0, 5).map((row, index) => {
+    const filledHour = hours.find((hour) => {
+      const cell = normalizeCell(row.cells[hour]);
+      return !cell.hidden && cell.text.trim();
+    });
+    const filledCell = filledHour ? normalizeCell(row.cells[filledHour]) : null;
+    const dayNumber = String(index + 1).padStart(2, '0');
+
+    return {
+      date: `${String(row.day || DAYS[index]).toUpperCase()} ${dayNumber}/09`,
+      subject: filledCell ? `${getHourStart(filledHour)}\n${filledCell.text}` : '',
+      text: DOT_TEXT,
+      color: HOMEWORK_COLORS[index]
+    };
+  });
 
   const canExtendLeft = (row, hourIndex) => hourIndex > 0 && Boolean(normalizeCell(row.cells[hours[hourIndex]]).text.trim()) && !normalizeCell(row.cells[hours[hourIndex - 1]]).hidden && !normalizeCell(row.cells[hours[hourIndex - 1]]).text.trim();
   const canExtendRight = (row, hourIndex) => {
@@ -211,9 +222,9 @@ export default function Tab() {
         <footer className="cahier-footer"><span>Signature :</span><span>Observations :</span></footer>
       </div>
       <div className="a4-page cahier-page homework-page">
-        {HOMEWORK_ENTRIES.map(([date, subject, text, color]) => <section className="homework-entry" key={date} style={{ '--homework-color': color }}>
-          <div className="homework-date" contentEditable suppressContentEditableWarning onKeyDown={validateOnEnter}>{date}</div>
-          <div className="homework-content"><div className="homework-subject" contentEditable suppressContentEditableWarning onKeyDown={validateOnEnter}>{subject}</div><div className="homework-text" contentEditable suppressContentEditableWarning onKeyDown={validateOnEnter} style={text === DOT_TEXT ? dotTextStyle : undefined}>{text}</div></div>
+        {homeworkEntries.map((entry) => <section className="homework-entry" key={entry.date} style={{ '--homework-color': entry.color }}>
+          <div className="homework-date" contentEditable suppressContentEditableWarning onKeyDown={validateOnEnter}>{entry.date}</div>
+          <div className="homework-content"><div className="homework-subject" contentEditable suppressContentEditableWarning onKeyDown={validateOnEnter}>{entry.subject}</div><div className="homework-text" contentEditable suppressContentEditableWarning onKeyDown={validateOnEnter} style={dotTextStyle}>{entry.text}</div></div>
         </section>)}
       </div>
     </section>
