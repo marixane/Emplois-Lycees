@@ -45,6 +45,14 @@ const normalizeCell = (cell) => {
   return { text: String(cell ?? ''), room: 1, span: 1, hidden: false };
 };
 
+const activityText = `Activité du jour: ....................
+Titre..............................
+Supports:..........................
+....................................
+Objectifs:..........................
+....................................
+....................................`;
+
 export default function Tab() {
   const [school, setSchool] = useState('Établissement :');
   const [teacher, setTeacher] = useState('Professeur :');
@@ -360,6 +368,34 @@ export default function Tab() {
           <span>Signature :</span>
           <span>Observations :</span>
         </footer>
+      </div>
+
+      <div className="a4-page cahier-page activity-page">
+        <table className="activity-table">
+          <thead>
+            <tr className="activity-top-row">
+              <th colSpan="3"><textarea defaultValue="Séquence:" /></th>
+              <th><textarea defaultValue="Semaine" /></th>
+              <th colSpan="2"><textarea defaultValue="Compétences:" /></th>
+            </tr>
+            <tr className="activity-label-row">
+              <th><textarea defaultValue="Date" /></th>
+              <th><textarea defaultValue="Heure" /></th>
+              <th><textarea defaultValue="Classe" /></th>
+              <th colSpan="2"><textarea aria-label="Espace libre" /></th>
+              <th><textarea defaultValue="Remarques" /></th>
+            </tr>
+          </thead>
+          <tbody>
+            {[0, 1, 2].map((rowIndex) => <tr key={rowIndex}>
+              <td><textarea aria-label="Date" /></td>
+              <td><textarea aria-label="Heure" /></td>
+              <td><textarea aria-label="Classe" /></td>
+              <td colSpan="2" className="activity-main-cell"><textarea defaultValue={activityText} /></td>
+              <td><textarea aria-label="Remarques" /></td>
+            </tr>)}
+          </tbody>
+        </table>
       </div>
     </section>
   </main>;
