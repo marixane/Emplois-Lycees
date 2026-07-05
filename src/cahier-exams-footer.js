@@ -50,13 +50,15 @@ const buildExamTable = () => {
   return wrap;
 };
 
+const getTimetablePage = () => Array.from(document.querySelectorAll('.cahier-page'))
+  .find((page) => page.querySelector('.timetable-table'));
+
 const applyCahierExamsFooter = () => {
   if (!document.body.classList.contains('cahier-tab-active')) return;
-  const page = document.querySelector('.cahier-page:not(.homework-page):not(.holidays-page)');
+  const page = getTimetablePage();
   if (!page) return;
 
-  const oldFooter = page.querySelector('.cahier-footer');
-  if (oldFooter) oldFooter.remove();
+  page.querySelectorAll('.cahier-footer').forEach((footer) => footer.remove());
 
   if (!page.querySelector('.cahier-exams-footer')) page.append(buildExamTable());
 };
