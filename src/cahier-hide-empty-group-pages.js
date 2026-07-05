@@ -1,7 +1,10 @@
-const EVENT_START_DATE_ORDER = [
-  '05/09', '19/10', '06/11', '18/11', '07/12', '01/01', '11/01', '14/01', '20/01', '25/01',
-  '15/03', '20/03', '01/05', '03/05', '27/05', '29/05', '01/06', '16/06', '23/06', '03/07', '06/07'
-];
+const ensureEmptyGroupPageStyle = () => {
+  if (document.getElementById('cahier-empty-group-page-style')) return;
+  const style = document.createElement('style');
+  style.id = 'cahier-empty-group-page-style';
+  style.textContent = 'body.cahier-tab-active .homework-page:not(.cahier-visible-group-page){display:none!important;} body.cahier-tab-active .homework-page.cahier-visible-group-page{display:block!important;}';
+  document.head.appendChild(style);
+};
 
 const getHomeworkPageTitle = (page) => String(
   page.querySelector('.homework-page > div:first-child > div:first-child')?.textContent ||
@@ -9,12 +12,13 @@ const getHomeworkPageTitle = (page) => String(
   ''
 ).trim();
 
-const getPageFirstEventIndex = (page) => {
+const getPageFirstDateValue = (page) => {
   const dateText = String(page.querySelector('.homework-date')?.textContent || '');
-  const match = dateText.match(/\b\d{2}\/\d{2}\b/);
-  if (!match) return 999;
-  const found = EVENT_START_DATE_ORDER.indexOf(match[0]);
-  return found >= 0 ? found : 999;
+  const match = dateText.match(/\b(\d{2})\/(\d{2})\b/);
+  if (!match) return 99999;
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  return (month >= 9 ? 0 : 10000) + month * 100 + day;
 };
 
 const getClassGroupStates = () => {
@@ -38,16 +42,16 @@ const splitHomeworkPagesIntoBlocks = (pages) => {
 
   pages.forEach((page) => {
     const title = getHomeworkPageTitle(page);
-    const firstIndex = getPageFirstEventIndex(page);
-    const startsNewBlock = !currentBlock || title !== currentBlock.title || firstIndex <= currentBlock.lastIndex;
+    const firstDateValue = getPageFirstDateValue(page);
+    const startsNewBlock = !currentBlock || firstDateValue < currentBlock.lastDateValue || (title !== currentBlock.title && firstDateValue <= currentBlock.lastDateValue);
 
     if (startsNewBlock) {
-      currentBlock = { title, pages: [], lastIndex: -1 };
+      currentBlock = { title, pages: [], lastDateValue: -1 };
       blocks.push(currentBlock);
     }
 
     currentBlock.pages.push(page);
-    currentBlock.lastIndex = firstIndex;
+    currentBlock.lastDateValue = firstDateValue;
   });
 
   return blocks;
@@ -55,16 +59,19 @@ const splitHomeworkPagesIntoBlocks = (pages) => {
 
 const applyEmptyGroupPageVisibility = () => {
   if (!document.body.classList.contains('cahier-tab-active')) return;
+  ensureEmptyGroupPageStyle();
 
   const groupStates = getClassGroupStates();
   const homeworkPages = Array.from(document.querySelectorAll('.homework-page'));
   const blocks = splitHomeworkPagesIntoBlocks(homeworkPages);
 
+  homeworkPages.forEach((page) => page.classList.remove('cahier-visible-group-page'));
+
   blocks.forEach((block, index) => {
     const group = groupStates[index];
     const shouldShow = Boolean(group?.hasClass);
     block.pages.forEach((page) => {
-      page.style.display = shouldShow ? '' : 'none';
+      page.classList.toggle('cahier-visible-group-page', shouldShow);
     });
   });
 };
@@ -84,12 +91,18 @@ if (document.readyState === 'loading') {
   scheduleEmptyGroupPageVisibility();
 }
 
-window.setTimeout(scheduleEmptyGroupPageVisibility, 250);
-window.setTimeout(scheduleEmptyGroupPageVisibility, 800);
-window.setTimeout(scheduleEmptyGroupPageVisibility, 1600);
+window.setTimeout(scheduleEmptyGroupPageVisibility, 150);
+window.setTimeout(scheduleEmptyGroupPageVisibility, 500);
+window.setTimeout(scheduleEmptyGroupPageVisibility, 1200);
+window.setTimeout(scheduleEmptyGroupPageVisibility, 2200);
 
 document.addEventListener('input', (event) => {
   if (event.target?.closest?.('.timetable-table')) window.setTimeout(scheduleEmptyGroupPageVisibility, 120);
 }, { passive: true });
 document.addEventListener('drop', () => window.setTimeout(scheduleEmptyGroupPageVisibility, 150), { passive: true });
 document.addEventListener('mouseup', () => window.setTimeout(scheduleEmptyGroupPageVisibility, 150), { passive: true });
+
+new MutationObserver(scheduleEmptyGroupPageVisibility).observe(document.body, {
+  childList: true,
+  subtree: true
+});
