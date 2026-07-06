@@ -100,6 +100,9 @@ import './cahier-fixed-five-entries.css';
 // Bouton important de téléchargement PDF uniquement.
 import './cahier-pdf-export-button.js';
 
+// Nettoyage léger : si une date est déjà vacance/examen, on supprime la ligne normale du même jour.
+import './cahier-event-day-clean.js';
+
 // Désactivés pour éviter le blocage quand on ajoute une 2e classe.
 // Ces scripts modifient le DOM après React et se relancent pendant la saisie.
 // import './cahier-cover-page.js';
