@@ -100,6 +100,57 @@
   background: transparent !important;
 }
 
+.cahier-page > .cahier-exams-list tr {
+  display: grid !important;
+  grid-template-columns: 1fr 0.9fr 0.9fr 2.5fr !important;
+}
+
+.cahier-page > .cahier-exams-list th,
+.cahier-page > .cahier-exams-list td {
+  display: block !important;
+}
+
+.cahier-page > .cahier-exams-list th:first-child,
+.cahier-page > .cahier-exams-list td:first-child {
+  order: 2 !important;
+}
+
+.cahier-page > .cahier-exams-list th:nth-child(2),
+.cahier-page > .cahier-exams-list td:nth-child(2) {
+  order: 3 !important;
+}
+
+.cahier-page > .cahier-exams-list th:nth-child(3),
+.cahier-page > .cahier-exams-list td:nth-child(3) {
+  order: 1 !important;
+}
+
+.cahier-page > .cahier-exams-list th:nth-child(4),
+.cahier-page > .cahier-exams-list td:nth-child(4) {
+  order: 4 !important;
+}
+
+.cahier-page > .cahier-exams-list th:first-child,
+.cahier-page > .cahier-exams-list th:nth-child(2),
+.cahier-page > .cahier-exams-list th:nth-child(3) {
+  font-size: 0 !important;
+}
+
+.cahier-page > .cahier-exams-list th:first-child::after {
+  content: 'Date de' !important;
+  font-size: 11px !important;
+}
+
+.cahier-page > .cahier-exams-list th:nth-child(2)::after {
+  content: 'Date à' !important;
+  font-size: 11px !important;
+}
+
+.cahier-page > .cahier-exams-list th:nth-child(3)::after {
+  content: 'Cycle' !important;
+  font-size: 11px !important;
+}
+
 .cahier-page > .cahier-exams-list th {
   padding: 8px 8px !important;
   background: #dbeafe !important;
@@ -138,4 +189,5 @@
 
 .cahier-page > .cahier-exams-list td:nth-child(3) {
   color: #374151 !important;
+  font-weight: 900 !important;
 }
