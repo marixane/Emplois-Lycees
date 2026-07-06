@@ -24,6 +24,18 @@ const getJulyGroups = () => {
   })).filter((group) => group.title && group.classes.length);
 };
 
+const getJulySessionsByDay = (group) => {
+  const classSet = new Set(group.classes);
+  const rows = Array.from(document.querySelectorAll('.timetable-table tbody tr'));
+  return rows.map((row) => Array.from(row.querySelectorAll('td[colspan]')).reduce((sessions, cell) => {
+    const text = String(cell.querySelector('textarea')?.value || cell.querySelector('textarea')?.textContent || '').trim();
+    if (!text || !classSet.has(text)) return sessions;
+    const hour = String(document.querySelectorAll('.timetable-table thead th textarea')[sessions.length + 1]?.value || '').split('-')[0].trim();
+    sessions.push(hour ? `${hour} ${text}` : text);
+    return sessions;
+  }, []));
+};
+
 const removeWrongNativeJulyEntries = () => {
   document.querySelectorAll('.homework-page:not([data-cahier-july-complete="true"]) .homework-entry:not(.cahier-exam-entry):not(.cahier-extra-holiday-entry)').forEach((entry) => {
     const date = getJulyDate(entry.querySelector('.homework-date')?.textContent || '');
@@ -64,11 +76,15 @@ const makeJulyEntry = ({ date, subject, text }) => {
 
 const getJulyEntries = (group) => {
   const entries = [];
+  const sessionsByDay = getJulySessionsByDay(group);
   for (let day = 4; day <= 10; day += 1) {
     const date = new Date(2027, 6, day);
     if (date.getDay() === 0) continue;
+    const dayIndex = (date.getDay() + 6) % 7;
+    const sessions = sessionsByDay[dayIndex] || [];
+    if (!sessions.length) continue;
     const monthDate = `${String(day).padStart(2, '0')}/07`;
-    entries.push({ date: `${JULY_DAYS[date.getDay()]} ${monthDate}`, subject: group.classes.join(' / '), text: JULY_DOTS });
+    entries.push({ date: `${JULY_DAYS[date.getDay()]} ${monthDate}`, subject: sessions.join(' / '), text: JULY_DOTS });
   }
   return entries;
 };
