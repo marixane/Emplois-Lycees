@@ -1,57 +1,10 @@
 const COVER_ID = 'cahier-main-cover-page';
-const LYCEE_EVENTS_PAGE_ID = 'cahier-lycee-events-page';
-
-const LYCEE_EVENTS = [
-  { date: 'Du 04/01/2027 au 09/01/2027', text: 'Réalisation des derniers devoirs de contrôle continu' },
-  { date: 'Le 16/01/2027', text: 'Fin de saisie des notes des derniers devoirs de contrôle continu' },
-  { date: 'À partir du 21/01/2027', text: 'Édition des relevés de notes via la plateforme Massar' },
-  { date: 'Du 17/05/2027 au 22/05/2027', text: 'Réalisation des derniers devoirs de contrôle continu' },
-  { date: 'Le 28/05/2027 et le 29/05/2027', text: 'Fin de saisie des notes des derniers devoirs de contrôle continu' }
-];
 
 const getFilledClasses = () => {
   const values = Array.from(document.querySelectorAll('.timetable-table tbody td:not(.day-cell) textarea'))
     .map((input) => String(input.value || input.textContent || '').trim())
     .filter((value) => value && value.toLowerCase() !== 'classe');
   return [...new Set(values)];
-};
-
-const createLyceeEventsPage = () => {
-  const page = document.createElement('div');
-  page.id = LYCEE_EVENTS_PAGE_ID;
-  page.className = 'a4-page cahier-page cahier-lycee-events-page';
-  page.innerHTML = `
-    <div class="cahier-lycee-events-header">
-      <div class="cahier-lycee-events-kicker">Lycée</div>
-      <h2>Événements pédagogiques</h2>
-      <div>Deuxième année baccalauréat — Année scolaire 2026 / 2027</div>
-    </div>
-    <div class="cahier-lycee-events-list">
-      ${LYCEE_EVENTS.map((event) => `
-        <section class="cahier-lycee-event-item">
-          <div class="cahier-lycee-event-date">${event.date}</div>
-          <div class="cahier-lycee-event-text">${event.text}</div>
-        </section>
-      `).join('')}
-    </div>
-  `;
-  return page;
-};
-
-const addLyceeEventsPage = () => {
-  const cover = document.getElementById(COVER_ID);
-  const zone = document.querySelector('.cahier-preview-zone');
-  if (!cover || !zone) return;
-
-  let page = document.getElementById(LYCEE_EVENTS_PAGE_ID);
-  if (!page) {
-    page = createLyceeEventsPage();
-    cover.insertAdjacentElement('afterend', page);
-  }
-
-  cover.querySelectorAll('.cahier-cover-level-buttons button').forEach((button) => {
-    button.classList.toggle('is-active', button.textContent.trim() === 'Lycée');
-  });
 };
 
 const createCoverPage = () => {
@@ -92,13 +45,7 @@ const createCoverPage = () => {
       <div class="cahier-cover-classes-title">Classes remplies dans l'emploi du temps</div>
       <div class="cahier-cover-classes-list"></div>
     </div>
-    <div class="cahier-cover-level-buttons">
-      <button type="button">Primaire</button>
-      <button type="button">Collège</button>
-      <button type="button" data-cover-level="lycee">Lycée</button>
-    </div>
   `;
-  page.querySelector('[data-cover-level="lycee"]')?.addEventListener('click', addLyceeEventsPage);
   return page;
 };
 
@@ -119,6 +66,7 @@ const applyCoverPage = () => {
     page = createCoverPage();
     zone.prepend(page);
   }
+  if (zone.firstElementChild !== page) zone.prepend(page);
   updateCoverClasses(page);
 };
 
