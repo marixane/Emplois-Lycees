@@ -102,6 +102,7 @@ import './cahier-main-cover-page.js';
 // Désactivé : ce helper réordonne les pages à chaque saisie et peut bloquer Safari.
 // import './cahier-lycee-events-inline.js';
 import './cahier-single-autres-group.css';
+import './cahier-rename-cover-autres-safe.js';
 // Désactivé : ce guard DOM peut bloquer Safari pendant la saisie.
 // import './cahier-hide-holiday-session-duplicates.js';
 
