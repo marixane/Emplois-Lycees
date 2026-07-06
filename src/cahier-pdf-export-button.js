@@ -151,6 +151,7 @@ const getHomeworkPageColor = (page) => normalizeColor(page.style.getPropertyValu
 
 const shouldExportPage = (page, filledGroupColors) => {
   if (!page.classList.contains('homework-page')) return true;
+  if (page.dataset.cahierJulyComplete === 'true') return true;
   if (!filledGroupColors.size) return false;
   return filledGroupColors.has(getHomeworkPageColor(page));
 };
