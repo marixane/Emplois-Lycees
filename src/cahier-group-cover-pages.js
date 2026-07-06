@@ -23,7 +23,8 @@ const splitVisibleHomeworkBlocks = () => {
   visiblePages.forEach((page) => {
     const title = getHomeworkPageTitleForCover(page);
     const firstDate = getHomeworkPageDateForCover(page);
-    const startsNewBlock = !currentBlock || firstDate < currentBlock.lastDate || (title !== currentBlock.title && firstDate <= currentBlock.lastDate);
+    const isJulyContinuation = page.dataset.cahierJulyComplete === 'true';
+    const startsNewBlock = !currentBlock || (!isJulyContinuation && (firstDate < currentBlock.lastDate || (title !== currentBlock.title && firstDate <= currentBlock.lastDate)));
 
     if (startsNewBlock) {
       currentBlock = { title, pages: [], lastDate: -1 };
@@ -31,7 +32,7 @@ const splitVisibleHomeworkBlocks = () => {
     }
 
     currentBlock.pages.push(page);
-    currentBlock.lastDate = firstDate;
+    currentBlock.lastDate = Math.max(currentBlock.lastDate, firstDate);
   });
 
   return blocks;
@@ -165,8 +166,11 @@ const applyGroupCoverPages = () => {
     }
     const color = GROUP_COVER_COLORS[index % GROUP_COVER_COLORS.length];
     applyThemeToBlockPages(block.pages, color);
-    const cover = buildGroupCoverPage(block.title, index, group.classes, color);
-    block.pages[0].before(cover);
+    const firstPageIsJuly = block.pages[0]?.dataset.cahierJulyComplete === 'true';
+    if (!firstPageIsJuly) {
+      const cover = buildGroupCoverPage(block.title, index, group.classes, color);
+      block.pages[0].before(cover);
+    }
   });
 
   applySessionDurationBadges();
