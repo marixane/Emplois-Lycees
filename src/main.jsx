@@ -107,6 +107,9 @@ import './cahier-group-cover-pages.js';
 // Tableau des examens sous l'emploi du temps.
 import './cahier-exams-footer.js';
 
+// Bouton important de téléchargement PDF.
+import './cahier-pdf-export-button.js';
+
 // Gardés désactivés : scripts DOM qui modifient les événements/juillet après React.
 // import './cahier-dedupe-holiday-classes.js';
 // import './cahier-cover-info-panel.js';
