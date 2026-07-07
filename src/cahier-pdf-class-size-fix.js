@@ -5,10 +5,7 @@ const preparePdfClassSizes = () => {
   const previousStyles = labels.map((label) => label.getAttribute('style'));
 
   labels.forEach((label) => {
-    const count = label.parentElement?.parentElement?.children?.length || 1;
-    const size = count >= 4 ? 12 : count === 3 ? 14 : 16;
-
-    label.style.setProperty('font-size', `${size}px`, 'important');
+    label.style.setProperty('font-size', '12px', 'important');
     label.style.setProperty('transform', 'none', 'important');
     label.style.setProperty('transform-origin', 'left center', 'important');
     label.style.setProperty('overflow', 'hidden', 'important');
