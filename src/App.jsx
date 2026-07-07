@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Tab from './Tab.jsx';
+import './emplois-page-tabs.css';
 
 const PAGES = [
   { id: 'primaire', label: 'Emplois Primaires' },
