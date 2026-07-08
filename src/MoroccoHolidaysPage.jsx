@@ -82,13 +82,6 @@ const nameStyle = {
   fontWeight: 900
 };
 
-const dateStyle = {
-  ...cellStyle,
-  background: '#fef3c7',
-  color: '#92400e',
-  fontWeight: 900
-};
-
 const badgeStyle = {
   display: 'inline-flex',
   alignItems: 'center',
@@ -125,7 +118,7 @@ export default function MoroccoHolidaysPage() {
       <tbody>{HOLIDAYS.map((holiday, index) => <tr key={holiday.name}>
         <td style={{ ...cellStyle, borderLeft: '1px solid rgba(17,17,17,0.08)', borderRadius: '12px 0 0 12px', fontWeight: 900 }}>{String(index + 1).padStart(2, '0')}</td>
         <td style={nameStyle}>{holiday.name}</td>
-        <td style={dateStyle}>{holiday.date}</td>
+        <td style={cellStyle}>{holiday.date}</td>
         <td style={cellStyle}>{holiday.days}</td>
         <td style={{ ...cellStyle, borderRight: '1px solid rgba(17,17,17,0.08)', borderRadius: '0 12px 12px 0' }}><span style={{ ...badgeStyle, background: typeColor(holiday.type) }}>{holiday.type}</span></td>
       </tr>)}</tbody>
