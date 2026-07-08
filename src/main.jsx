@@ -86,7 +86,6 @@ import './mobile-touch-drag.js';
 import './mobile-exercice-touch-zone.css';
 import './line-grid-mode.js';
 import './cahier-texte.css';
-import './cahier-inner-dates-yellow.css';
 import './cahier-left-margin-100.css';
 import './cahier-top-space-fix.css';
 import './cahier-page-numbers.css';
