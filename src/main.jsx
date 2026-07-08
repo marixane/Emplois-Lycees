@@ -135,19 +135,4 @@ import './cahier-pdf-class-size-fix.js';
 // import './cahier-hide-empty-group-pages.js';
 // import './cahier-july-complete.js';
 
-const NativeDate = window.Date;
-class CahierSchoolDate extends NativeDate {
-  constructor(...args) {
-    if (args.length === 0) {
-      super(2026, 8, 1, 12, 0, 0, 0);
-    } else {
-      super(...args);
-    }
-  }
-  static now() { return NativeDate.now(); }
-  static parse(value) { return NativeDate.parse(value); }
-  static UTC(...args) { return NativeDate.UTC(...args); }
-}
-window.Date = CahierSchoolDate;
-
 createRoot(document.getElementById('root')).render(<React.StrictMode><App /></React.StrictMode>);
