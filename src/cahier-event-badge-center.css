@@ -18,11 +18,11 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  align-self: stretch !important;
-  width: 100% !important;
-  height: 100% !important;
-  min-height: 0 !important;
-  margin: 0 !important;
+  align-self: center !important;
+  width: calc(100% - 24px) !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  margin: 0 12px !important;
   padding: 0 !important;
   font-size: 20px !important;
   font-weight: 900 !important;
@@ -47,6 +47,7 @@
   height: 100% !important;
   margin: 0 !important;
   grid-template-columns: none !important;
+  transform: translate(4px, 1px) !important;
 }
 
 .cahier-extra-holiday-entry .homework-subject > div > span:first-child,
