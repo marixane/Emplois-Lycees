@@ -26,6 +26,7 @@ const correctSchoolCalendar = () => ({
       ["const getMandatoryEventStart = (monthDate) => MANDATORY_EVENTS.filter((event) => event.start === monthDate);", "const getMandatoryEventStart = (monthDate) => PAGE_EVENTS.filter((event) => event.start === monthDate);"],
       ["const isInsideMandatoryEventAfterStart = (monthDate) => MANDATORY_EVENTS.some((event) => {", "const isInsideMandatoryEventAfterStart = (monthDate) => PAGE_EVENTS.some((event) => {"],
       ["const isInsideHolidayEvent = (monthDate) => MANDATORY_EVENTS.some((event) => {", "const isInsideHolidayEvent = (monthDate) => PAGE_EVENTS.some((event) => {"],
+      ["style={entry.sessions.length ? subjectTextStyle : undefined}", "style={entry.sessions.length ? subjectTextStyle : (entry.isHoliday || entry.isExam ? { fontSize: '20px', fontWeight: 900, lineHeight: 1.1, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px 18px', transform: 'translate(4px, 1px)' } : undefined)}"],
       [".homework-date { font-size: 28px !important; }", ".homework-date { font-size: 22px !important; }"],
       ["applySessionDurationsForPdf(zone);\n  removeAfterJuly10(zone);", "applySessionDurationsForPdf(zone);\n  zone.querySelectorAll('.homework-date').forEach((node) => node.style.setProperty('font-size', '22px', 'important'));\n  removeAfterJuly10(zone);"]
     ];
