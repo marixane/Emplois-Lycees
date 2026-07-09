@@ -56,6 +56,20 @@ const isSameDate = (a, b) => a && b && a.getTime() === b.getTime();
 const isInside = (date, event) => date >= parseDate(event.start) && date <= parseDate(event.end);
 const isEventEntry = (entry) => entry.classList.contains('cahier-extra-holiday-entry') || entry.classList.contains('cahier-exam-entry') || /Vacance|Fête nationale|Examen|Rattrapage|Procès-verbal/i.test(entry.querySelector('.homework-text')?.textContent || '');
 
+const hasSaturdayClass = () => {
+  const saturdayRow = [...document.querySelectorAll('.timetable-table tbody tr')].find((row) => {
+    const dayCell = row.querySelector('.day-cell textarea, .day-cell');
+    return String(dayCell?.value || dayCell?.textContent || '').trim().toUpperCase() === 'SAMEDI';
+  });
+
+  if (!saturdayRow) return false;
+
+  return Array.from(saturdayRow.children).slice(1).some((cell) => {
+    const field = cell.querySelector('textarea, input');
+    return String(field?.value || cell.textContent || '').trim().length > 0;
+  });
+};
+
 const setEventEntry = (entry, event) => {
   const dateElement = entry.querySelector('.homework-date');
   const textElement = entry.querySelector('.homework-text');
@@ -70,6 +84,7 @@ const setEventEntry = (entry, event) => {
 
 const fixEntries = (root = document) => {
   const entries = [...root.querySelectorAll?.('.homework-entry') || []];
+  const saturdayHasClass = hasSaturdayClass();
 
   entries.forEach((entry) => {
     const dateElement = entry.querySelector('.homework-date');
@@ -79,6 +94,11 @@ const fixEntries = (root = document) => {
     const firstDate = getFirstDisplayedDate(fullText);
     if (!firstDate || firstDate > SCHOOL_END_DATE) {
       if (firstDate && firstDate > SCHOOL_END_DATE) entry.remove();
+      return;
+    }
+
+    if (formatDate(firstDate) === '05/09/2026' && !saturdayHasClass) {
+      entry.remove();
       return;
     }
 
