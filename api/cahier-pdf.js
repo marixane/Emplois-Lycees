@@ -161,6 +161,21 @@ export default async function handler(req, res) {
 
     await page.setContent(documentHtml, { waitUntil: 'domcontentloaded', timeout: LONG_TIMEOUT });
     await page.evaluate(async () => {
+      const addYear = (text) => String(text || '').replace(/\b(\d{2})\/(\d{2})(?!\/\d{4})\b/g, (_, day, month) => {
+        const year = Number(month) >= 9 ? 2026 : 2027;
+        return `${day}/${month}/${year}`;
+      });
+
+      document.querySelectorAll('.homework-date').forEach((element) => {
+        element.textContent = addYear(element.textContent);
+      });
+
+      document.querySelectorAll('.cahier-exams-list tbody tr').forEach((row) => {
+        Array.from(row.cells).slice(0, 2).forEach((cell) => {
+          cell.textContent = addYear(cell.textContent);
+        });
+      });
+
       if (document.fonts?.ready) await document.fonts.ready.catch(() => {});
       window.scrollTo(0, 0);
     });
