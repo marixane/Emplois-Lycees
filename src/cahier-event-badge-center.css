@@ -38,7 +38,7 @@
   font-weight: 900 !important;
   line-height: 1.1 !important;
   margin: 0 auto !important;
-  transform: translateY(3px) !important;
+  transform: translateY(1px) !important;
 }
 
 .cahier-extra-holiday-entry .homework-subject > div > span:last-child:empty,
