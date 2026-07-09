@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import Tab from './Tab.jsx';
 
 const SCHOOL_START_YEAR = 2026;
@@ -20,12 +20,12 @@ const getFirstDisplayedDate = (text) => {
   return new Date(Number(year), Number(month) - 1, Number(day));
 };
 
-const updateDisplayedDates = () => {
-  document.querySelectorAll('.cahier-header input[aria-label="Année scolaire automatique"]').forEach((input) => {
+const updateDisplayedDates = (root = document) => {
+  root.querySelectorAll?.('.cahier-header input[aria-label="Année scolaire automatique"]').forEach((input) => {
     if (input.value !== 'Année scolaire : 2026 / 2027') input.value = 'Année scolaire : 2026 / 2027';
   });
 
-  document.querySelectorAll('.homework-date').forEach((element) => {
+  root.querySelectorAll?.('.homework-date').forEach((element) => {
     const nextText = addSchoolYearToDates(element.textContent);
     if (element.textContent !== nextText) element.textContent = nextText;
 
@@ -34,14 +34,19 @@ const updateDisplayedDates = () => {
     if (entry && entryDate && entryDate > SCHOOL_END_DATE) entry.remove();
   });
 
-  document.querySelectorAll('.cahier-exams-list tbody tr').forEach((row) => {
+  root.querySelectorAll?.('.cahier-exams-list tbody tr').forEach((row) => {
     Array.from(row.cells).slice(0, 2).forEach((cell) => {
       const nextText = addSchoolYearToDates(cell.textContent);
       if (cell.textContent !== nextText) cell.textContent = nextText;
     });
   });
 
-  document.querySelectorAll('.homework-page').forEach((page) => {
+  root.querySelectorAll?.('.holidays-page td').forEach((cell) => {
+    const nextText = addSchoolYearToDates(cell.textContent);
+    if (cell.textContent !== nextText) cell.textContent = nextText;
+  });
+
+  root.querySelectorAll?.('.homework-page').forEach((page) => {
     if (!page.querySelector('.homework-entry')) page.remove();
   });
 };
@@ -49,6 +54,19 @@ const updateDisplayedDates = () => {
 export default function TabWithFullDates() {
   useLayoutEffect(() => {
     updateDisplayedDates();
+  });
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) updateDisplayedDates(node);
+        });
+      });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, []);
 
   return <>
