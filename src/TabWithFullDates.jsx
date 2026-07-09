@@ -58,16 +58,14 @@ const isEventEntry = (entry) => entry.classList.contains('cahier-extra-holiday-e
 
 const hasSaturdayClass = () => {
   const saturdayRow = [...document.querySelectorAll('.timetable-table tbody tr')].find((row) => {
-    const dayCell = row.querySelector('.day-cell textarea, .day-cell');
-    return String(dayCell?.value || dayCell?.textContent || '').trim().toUpperCase() === 'SAMEDI';
+    const dayField = row.querySelector('.day-cell textarea');
+    return String(dayField?.value || '').trim().toUpperCase() === 'SAMEDI';
   });
 
   if (!saturdayRow) return false;
 
-  return Array.from(saturdayRow.children).slice(1).some((cell) => {
-    const field = cell.querySelector('textarea, input');
-    return String(field?.value || cell.textContent || '').trim().length > 0;
-  });
+  return [...saturdayRow.querySelectorAll('td:not(.day-cell) textarea')]
+    .some((textarea) => String(textarea.value || '').trim().length > 0);
 };
 
 const setEventEntry = (entry, event) => {
