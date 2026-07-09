@@ -1,3 +1,7 @@
+.homework-date {
+  font-size: 22px !important;
+}
+
 .cahier-extra-holiday-entry .homework-content,
 .cahier-exam-entry .homework-content {
   align-items: stretch !important;
