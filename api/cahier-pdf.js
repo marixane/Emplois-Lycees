@@ -26,23 +26,25 @@ const LOCAL_CHROME_PATHS = [
 ];
 
 const isLocalDev = () => !process.env.VERCEL && process.env.NODE_ENV !== 'production';
-
 const getLocalChromePath = () => LOCAL_CHROME_PATHS.find((path) => existsSync(path));
-
 const getExecutablePath = async () => {
   const localPath = getLocalChromePath();
   if (isLocalDev() && localPath) return localPath;
   return chromium.executablePath();
 };
-
-const getLaunchArgs = () => {
-  const args = isLocalDev() ? ['--no-sandbox', '--disable-setuid-sandbox'] : chromium.args;
-  return args;
-};
-
+const getLaunchArgs = () => isLocalDev() ? ['--no-sandbox', '--disable-setuid-sandbox'] : chromium.args;
 const cleanBaseUrl = (url) => String(url || 'https://a4exam.com').replace(/["<>]/g, '').replace(/\/$/, '');
-
 const errorMessage = (error) => String(error?.message || error || 'Erreur génération PDF');
+
+const addSchoolYearToDateText = (text) => String(text || '').replace(/\b(\d{2})\/(\d{2})(?!\/\d{4})\b/g, (_, day, month) => {
+  const year = Number(month) >= 9 ? 2026 : 2027;
+  return `${day}/${month}/${year}`;
+});
+
+const enrichHomeworkDates = (html) => String(html).replace(
+  /(<div\b[^>]*class=(?:"[^"]*\bhomework-date\b[^"]*"|'[^']*\bhomework-date\b[^']*')[^>]*>)([\s\S]*?)(<\/div>)/gi,
+  (_, openingTag, content, closingTag) => `${openingTag}${addSchoolYearToDateText(content)}${closingTag}`
+);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -76,6 +78,7 @@ export default async function handler(req, res) {
     page.setDefaultNavigationTimeout(LONG_TIMEOUT);
 
     const safeBase = cleanBaseUrl(baseUrl);
+    const enrichedHtml = enrichHomeworkDates(html);
     const documentHtml = `<!doctype html>
 <html>
 <head>
@@ -144,11 +147,15 @@ export default async function handler(req, res) {
       width: ${A4_WIDTH_CSS} !important;
       height: ${A4_HEIGHT_CSS} !important;
     }
+    .homework-date {
+      border-bottom: 2px dotted rgba(63, 64, 80, 0.5) !important;
+      padding-bottom: 8px !important;
+    }
     .a4-page:last-child, .cahier-page:last-child { break-after: auto !important; page-break-after: auto !important; }
   </style>
 </head>
 <body class="cahier-tab-active">
-  ${html}
+  ${enrichedHtml}
 </body>
 </html>`;
 
