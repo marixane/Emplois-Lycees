@@ -16,14 +16,24 @@
 .cahier-extra-holiday-entry .homework-subject,
 .cahier-exam-entry .homework-subject {
   display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
+  align-items: center !important;
   justify-content: center !important;
   align-self: stretch !important;
   height: auto !important;
   min-height: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+  padding: 9px 18px !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+  transform: translate(4px, 1px) !important;
+}
+
+@media print {
+  .cahier-extra-holiday-entry .homework-subject,
+  .cahier-exam-entry .homework-subject {
+    font-size: 20px !important;
+  }
 }
 
 .cahier-extra-holiday-entry .homework-subject > div,
@@ -48,14 +58,6 @@
   font-weight: 900 !important;
   line-height: 1.1 !important;
   margin: 0 auto !important;
-  transform: translate(4px, 1px) !important;
-}
-
-@media print {
-  .cahier-extra-holiday-entry .homework-subject > div > span:first-child,
-  .cahier-exam-entry .homework-subject > div > span:first-child {
-    font-size: 20px !important;
-  }
 }
 
 .cahier-extra-holiday-entry .homework-subject > div > span:last-child:empty,
