@@ -38,6 +38,35 @@ const setEventVisual = (entry, event) => {
   }
 };
 
+const restoreMawlidAsNormalSaturday = () => {
+  const entries = [...document.querySelectorAll('.homework-entry')];
+  const mawlidEntry = entries.find((entry) => /Aïd Al Mawlid|Mawlid Annabaoui/i.test(entryText(entry)));
+  if (!mawlidEntry) return;
+
+  const normalSaturday = entries.find((entry) => {
+    const dateText = entry.querySelector('.homework-date')?.textContent || '';
+    return dateText.startsWith('SAMEDI ') && !/Vacance|Fête nationale|Examen|Rattrapage|Procès-verbal/i.test(entryText(entry));
+  });
+
+  const dateElement = mawlidEntry.querySelector('.homework-date');
+  const textElement = mawlidEntry.querySelector('.homework-text');
+  const subjectElement = mawlidEntry.querySelector('.homework-subject');
+
+  if (dateElement) dateElement.textContent = 'SAMEDI 05/09/2026';
+
+  if (normalSaturday) {
+    const sourceText = normalSaturday.querySelector('.homework-text');
+    const sourceSubject = normalSaturday.querySelector('.homework-subject');
+    if (textElement && sourceText) textElement.innerHTML = sourceText.innerHTML;
+    if (subjectElement && sourceSubject) subjectElement.innerHTML = sourceSubject.innerHTML;
+  } else {
+    if (textElement) textElement.textContent = `${'.'.repeat(63)}\n${'.'.repeat(63)}\n${'.'.repeat(63)}`;
+    if (subjectElement) subjectElement.innerHTML = '';
+  }
+
+  mawlidEntry.classList.remove('cahier-extra-holiday-entry', 'cahier-exam-entry');
+};
+
 const applyOfficialEvents = () => {
   const entries = [...document.querySelectorAll('.homework-entry')];
 
@@ -50,6 +79,8 @@ const applyOfficialEvents = () => {
 
     if (entry) setEventVisual(entry, event);
   });
+
+  restoreMawlidAsNormalSaturday();
 };
 
 const applyFullDates = () => {
