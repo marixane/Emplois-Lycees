@@ -118,6 +118,7 @@ import './cahier-pdf-class-size-fix.js';
 import './cahier-first-saturday-visibility.js';
 import './cahier-hide-drop-placeholder.js';
 import './cahier-hide-drop-placeholder.css';
+import './cahier-hide-class-placeholder.css';
 
 // Désactivé : ce helper DOM faisait buguer l'ajout de plusieurs séances.
 // import './cahier-group-cover-july10-light.js';
