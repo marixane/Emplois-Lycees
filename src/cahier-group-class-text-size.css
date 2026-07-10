@@ -1,6 +1,26 @@
-body.cahier-tab-active .groups-under-timetable > div > div:nth-child(2) > span,
-body.cahier-tab-active .cahier-exams-groups-page > div[style*="grid-template-columns: repeat(3, 1fr)"] > div > div:nth-child(2) > span {
-  font-size: 20px !important;
+body.cahier-tab-active .groups-under-timetable span[draggable="true"],
+body.cahier-tab-active .cahier-exams-groups-page span[draggable="true"],
+body.cahier-tab-active .cahier-page div[style*="grid-template-columns: repeat(3, 1fr)"] span[draggable="true"],
+body.cahier-tab-active .cahier-page div[style*="display: flex"] > span[draggable="true"],
+.cahier-preview-zone .groups-under-timetable span[draggable="true"],
+.cahier-preview-zone .cahier-exams-groups-page span[draggable="true"] {
+  font-size: 28px !important;
   line-height: 1.15 !important;
-  min-height: 36px !important;
+  min-height: 44px !important;
+  padding-top: 9px !important;
+  padding-bottom: 9px !important;
+  font-weight: 900 !important;
+}
+
+@media print {
+  .cahier-preview-zone .groups-under-timetable span[draggable="true"],
+  .cahier-preview-zone .cahier-exams-groups-page span[draggable="true"],
+  .cahier-preview-zone .cahier-page div[style*="grid-template-columns: repeat(3, 1fr)"] span[draggable="true"] {
+    font-size: 28px !important;
+    line-height: 1.15 !important;
+    min-height: 44px !important;
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+    font-weight: 900 !important;
+  }
 }
