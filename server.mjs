@@ -3,9 +3,9 @@ import { createServer as createViteServer } from 'vite';
 import cahierPdfHandler from './api/cahier-pdf.js';
 
 const PORT = Number(process.env.PORT || 5175);
-const MAX_BODY_SIZE = 20 * 1024 * 1024;
+const MAX_BODY_SIZE = 60 * 1024 * 1024;
 
-const readJsonBody = async (req) => {
+const readRequestBody = async (req) => {
   const chunks = [];
   let size = 0;
 
@@ -20,7 +20,23 @@ const readJsonBody = async (req) => {
   }
 
   if (!chunks.length) return {};
-  return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+
+  const raw = Buffer.concat(chunks).toString('utf8');
+  const contentType = String(req.headers['content-type'] || '').toLowerCase();
+
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    return Object.fromEntries(new URLSearchParams(raw));
+  }
+
+  if (contentType.includes('application/json')) {
+    return JSON.parse(raw);
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return Object.fromEntries(new URLSearchParams(raw));
+  }
 };
 
 const addVercelResponseHelpers = (res) => {
@@ -54,10 +70,11 @@ const server = http.createServer(async (req, res) => {
 
     if (requestUrl.pathname === '/api/cahier-pdf') {
       addVercelResponseHelpers(res);
+      req.query = Object.fromEntries(requestUrl.searchParams);
 
       if (req.method === 'POST') {
         try {
-          req.body = await readJsonBody(req);
+          req.body = await readRequestBody(req);
         } catch (error) {
           return res.status(error.statusCode || 400).json({
             error: error.statusCode === 413 ? error.message : 'Requête PDF invalide'
@@ -84,5 +101,5 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Application disponible sur http://localhost:${PORT}`);
-  console.log('Le téléchargement PDF local est actif.');
+  console.log('Le téléchargement et l’aperçu PDF local sont actifs.');
 });
