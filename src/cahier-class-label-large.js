@@ -44,27 +44,24 @@ const resizeClassLabels = () => {
     }
   });
 
-  document.querySelectorAll('.cahier-page').forEach((page) => {
-    Array.from(page.querySelectorAll('div')).forEach((container) => {
-      const groups = Array.from(container.children);
-      if (groups.length !== 3) return;
+  document.querySelectorAll('.cahier-page span').forEach((chip) => {
+    if (!chip.hasAttribute('draggable')) return;
 
-      const titles = groups.map((group) => String(group.textContent || '').replace(/\s+/g, ' ').trim().toUpperCase());
-      const isTargetGroups = titles[0].startsWith('TRONC COMMUN')
-        && titles[1].startsWith('1ÈRES BAC')
-        && titles[2].startsWith('2ÈME BAC');
-      if (!isTargetGroups) return;
-
-      groups.forEach((group) => {
-        const classesArea = group.children[1];
-        if (!classesArea) return;
-        Array.from(classesArea.children).forEach((chip) => {
-          chip.style.setProperty('font-size', '20px', 'important');
-          chip.style.setProperty('line-height', '1.15', 'important');
-          chip.style.setProperty('min-height', '36px', 'important');
-        });
-      });
-    });
+    let group = chip.parentElement;
+    while (group && group.classList?.contains('cahier-page') === false) {
+      const title = String(group.firstElementChild?.textContent || '').replace(/\s+/g, ' ').trim().toUpperCase();
+      if (title === 'TRONC COMMUN' || title === '1ÈRES BAC' || title === '2ÈME BAC') {
+        chip.style.setProperty('font-size', '32px', 'important');
+        chip.style.setProperty('line-height', '1.15', 'important');
+        chip.style.setProperty('min-height', '50px', 'important');
+        chip.style.setProperty('padding-top', '10px', 'important');
+        chip.style.setProperty('padding-bottom', '10px', 'important');
+        chip.style.setProperty('font-weight', '900', 'important');
+        chip.style.setProperty('transform', 'none', 'important');
+        break;
+      }
+      group = group.parentElement;
+    }
   });
 };
 
@@ -75,6 +72,7 @@ const scheduleClassLabelResize = () => {
     resizeClassLabels();
     setTimeout(resizeClassLabels, 100);
     setTimeout(resizeClassLabels, 220);
+    setTimeout(resizeClassLabels, 500);
   });
 };
 
