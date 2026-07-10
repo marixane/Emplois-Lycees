@@ -114,6 +114,7 @@ import './cahier-event-badge-center.css';
 // Bouton PDF Safari-safe : permanent, devant tout, sans mutation DOM web.
 // Il ne modifie les pages qu'au moment de générer le PDF.
 import './cahier-pdf-button-safari-safe.js';
+import './cahier-pdf-preview-final.js';
 import './cahier-pdf-class-size-fix.js';
 import './cahier-first-saturday-visibility.js';
 
