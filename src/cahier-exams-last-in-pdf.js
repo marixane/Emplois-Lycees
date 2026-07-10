@@ -1,6 +1,22 @@
 const EXAMS_PAGE_ID = 'cahier-exams-groups-page';
 const TEMP_PAGE_ID = 'cahier-exams-groups-page-pdf-last';
 
+const addSequentialPageNumbers = (doc, zone) => {
+  zone.querySelectorAll('.cahier-pdf-page-number').forEach((node) => node.remove());
+
+  const pages = Array.from(zone.children).filter((page) =>
+    page.classList?.contains('a4-page') || page.classList?.contains('cahier-page')
+  );
+
+  pages.forEach((page, index) => {
+    page.style.setProperty('position', 'relative', 'important');
+    const number = doc.createElement('div');
+    number.className = 'cahier-pdf-page-number';
+    number.textContent = String(index + 1);
+    page.append(number);
+  });
+};
+
 const reorderPdfHtml = (html) => {
   try {
     const parser = new DOMParser();
@@ -9,21 +25,39 @@ const reorderPdfHtml = (html) => {
     if (!zone) return html;
 
     const pages = Array.from(zone.querySelectorAll(`#${EXAMS_PAGE_ID}, #${TEMP_PAGE_ID}, .cahier-exams-groups-page`));
-    if (!pages.length) return html;
+    if (pages.length) {
+      const source = pages[pages.length - 1];
+      const finalPage = source.cloneNode(true);
+      finalPage.id = EXAMS_PAGE_ID;
+      finalPage.classList.remove('cahier-exams-groups-page-pdf-last');
+      finalPage.style.removeProperty('display');
+      finalPage.style.removeProperty('visibility');
+      finalPage.style.removeProperty('opacity');
 
-    const source = pages[pages.length - 1];
-    const finalPage = source.cloneNode(true);
-    finalPage.id = EXAMS_PAGE_ID;
-    finalPage.classList.remove('cahier-exams-groups-page-pdf-last');
-    finalPage.style.removeProperty('display');
-    finalPage.style.removeProperty('visibility');
-    finalPage.style.removeProperty('opacity');
+      pages.forEach((page) => page.remove());
+      zone.append(finalPage);
+    }
 
-    pages.forEach((page) => page.remove());
-    zone.append(finalPage);
+    addSequentialPageNumbers(doc, zone);
 
-    const style = doc.querySelector('style')?.outerHTML || '';
-    return `${style}${zone.outerHTML}`;
+    const originalStyle = doc.querySelector('style')?.textContent || '';
+    const numberingStyle = `
+      .cahier-page::after, .a4-page::after { content: none !important; display: none !important; }
+      .cahier-pdf-page-number {
+        position: absolute !important;
+        right: 18px !important;
+        bottom: 10px !important;
+        z-index: 9999 !important;
+        color: rgba(17,24,39,.38) !important;
+        font-family: Arial, sans-serif !important;
+        font-size: 18px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        pointer-events: none !important;
+      }
+    `;
+
+    return `<style>${originalStyle}\n${numberingStyle}</style>${zone.outerHTML}`;
   } catch {
     return html;
   }
