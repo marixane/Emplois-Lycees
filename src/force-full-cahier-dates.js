@@ -24,6 +24,18 @@ const addYear = (text) => String(text || '').replace(DATE_PATTERN, (_, day, mont
 const entryText = (entry) => entry.querySelector('.homework-text')?.textContent || '';
 const entryDate = (entry) => entry.querySelector('.homework-date')?.textContent.match(FULL_DATE_PATTERN)?.[0] || '';
 
+const hasSaturdayClass = () => {
+  const saturdayRow = [...document.querySelectorAll('.timetable-table tbody tr')].find((row) => {
+    const dayField = row.querySelector('.day-cell textarea');
+    return String(dayField?.value || '').trim().toUpperCase() === 'SAMEDI';
+  });
+
+  if (!saturdayRow) return false;
+
+  return [...saturdayRow.querySelectorAll('td:not(.day-cell) textarea')]
+    .some((textarea) => String(textarea.value || '').trim() !== '');
+};
+
 const setEventVisual = (entry, event) => {
   const dateElement = entry.querySelector('.homework-date');
   const textElement = entry.querySelector('.homework-text');
@@ -47,6 +59,11 @@ const restoreMawlidAsNormalSaturday = () => {
   const source = entries.find((entry) => entryDate(entry) === '12/09/2026');
 
   if (!target) return;
+
+  if (!hasSaturdayClass()) {
+    target.remove();
+    return;
+  }
 
   const dateElement = target.querySelector('.homework-date');
   const textElement = target.querySelector('.homework-text');
