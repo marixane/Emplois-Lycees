@@ -36,6 +36,16 @@ const getLaunchArgs = () => isLocalDev() ? ['--no-sandbox', '--disable-setuid-sa
 const cleanBaseUrl = (url) => String(url || 'https://a4exam.com').replace(/["<>]/g, '').replace(/\/$/, '');
 const errorMessage = (error) => String(error?.message || error || 'Erreur génération PDF');
 
+const isInlinePreview = (req) => {
+  if (String(req?.query?.preview || '') === '1') return true;
+  try {
+    const requestUrl = new URL(req?.url || '/api/cahier-pdf', 'http://localhost');
+    return requestUrl.searchParams.get('preview') === '1';
+  } catch {
+    return false;
+  }
+};
+
 const addSchoolYearToDateText = (text) => String(text || '').replace(/\b(\d{2})\/(\d{2})(?!\/\d{4})\b/g, (_, day, month) => {
   const year = Number(month) >= 9 ? 2026 : 2027;
   return `${day}/${month}/${year}`;
@@ -190,8 +200,9 @@ export default async function handler(req, res) {
       timeout: LONG_TIMEOUT
     });
 
+    const disposition = isInlinePreview(req) ? 'inline' : 'attachment';
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="Cahier-de-texte-2026-2027.pdf"');
+    res.setHeader('Content-Disposition', `${disposition}; filename="Cahier-de-texte-2026-2027.pdf"`);
     res.setHeader('Cache-Control', 'no-store');
     return res.status(200).send(pdf);
   } catch (error) {
