@@ -89,7 +89,7 @@ export default function App() {
         position: static !important;
         transform: none !important;
         width: fit-content !important;
-        margin: 16px 66px 0 auto !important;
+        margin: 36px 66px 0 auto !important;
         padding: 10px 19px !important;
         font-size: 22px !important;
         line-height: 1.2 !important;
