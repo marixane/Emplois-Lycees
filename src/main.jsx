@@ -111,10 +111,8 @@ import './cahier-event-badge-center.css';
 // Désactivé : ce guard DOM peut bloquer Safari pendant la saisie.
 // import './cahier-hide-holiday-session-duplicates.js';
 
-// Bouton PDF Safari-safe : permanent, devant tout, sans mutation DOM web.
-// Il ne modifie les pages qu'au moment de générer le PDF.
+// Les deux boutons PDF utilisent la même fonction de génération.
 import './cahier-pdf-button-safari-safe.js';
-import './cahier-pdf-preview-final.js';
 import './cahier-pdf-class-size-fix.js';
 import './cahier-first-saturday-visibility.js';
 
