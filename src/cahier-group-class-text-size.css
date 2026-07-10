@@ -1,0 +1,6 @@
+body.cahier-tab-active .groups-under-timetable > div > div:nth-child(2) > span,
+body.cahier-tab-active .cahier-exams-groups-page > div[style*="grid-template-columns: repeat(3, 1fr)"] > div > div:nth-child(2) > span {
+  font-size: 20px !important;
+  line-height: 1.15 !important;
+  min-height: 36px !important;
+}
