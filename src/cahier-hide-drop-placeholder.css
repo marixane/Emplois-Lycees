@@ -1,0 +1,9 @@
+.cahier-exams-list + div > div > div:last-child {
+  font-size: 0 !important;
+  color: transparent !important;
+}
+
+.cahier-exams-list + div > div > div:last-child > span {
+  font-size: 12px !important;
+  color: #111827 !important;
+}
