@@ -242,63 +242,29 @@ const downloadBlob = (blob) => {
   window.setTimeout(() => URL.revokeObjectURL(url), 1500);
 };
 
-const previewHtml = (html, previewWindow) => {
-  const previewPage = `<!doctype html>
-    <html lang="fr">
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <base href="${window.location.origin}/">
-        <title>Aperçu PDF — Cahier de texte</title>
-        <style>
-          html,body{margin:0;background:#475569;font-family:Arial,sans-serif}
-          body{padding:64px 20px 28px}
-          .pdf-toolbar{position:fixed;inset:0 0 auto 0;z-index:999999;height:48px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#0f172a;color:#fff;font-weight:900;box-shadow:0 3px 12px rgba(0,0,0,.35)}
-          .pdf-toolbar a{padding:8px 14px;border-radius:9px;background:#16a34a;color:#fff;font-weight:900;text-decoration:none;cursor:pointer;box-shadow:0 3px 0 #14532d}
-          .cahier-preview-zone{margin:0 auto!important}
-          .a4-page,.cahier-page{margin:0 auto 24px!important;box-shadow:0 8px 28px rgba(0,0,0,.32)!important}
-          @media print{body{padding:0;background:#fff}.pdf-toolbar{display:none!important}.a4-page,.cahier-page{margin:0!important;box-shadow:none!important}}
-        </style>
-      </head>
-      <body>
-        <div class="pdf-toolbar"><span>Aperçu PDF du cahier de texte</span><a href="#" onclick="window.print();return false">Imprimer / Enregistrer en PDF</a></div>
-        ${html}
-      </body>
-    </html>`;
-  const previewDocument = previewWindow.document;
-  previewDocument.open('text/html', 'replace');
-  previewDocument.write(previewPage);
-  previewDocument.close();
-  previewWindow.focus();
+const showPreviewLoading = (previewWindow) => {
+  previewWindow.document.open();
+  previewWindow.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Génération PDF…</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;font-family:Arial,sans-serif;color:#0f172a"><div style="text-align:center"><h2>Génération du PDF en cours…</h2><p>Veuillez patienter.</p></div></body></html>');
+  previewWindow.document.close();
 };
 
 const exportPdf = async (button, mode = 'download') => {
   const original = button.textContent;
   const previewWindow = mode === 'preview' ? window.open('about:blank', '_blank') : null;
+
   if (mode === 'preview' && !previewWindow) {
     alert('Autorisez les fenêtres surgissantes pour voir le PDF.');
     return;
   }
-  if (previewWindow) {
-    previewWindow.document.title = 'Génération de l’aperçu PDF…';
-    previewWindow.document.body.innerHTML = '<p style="font:700 18px Arial,sans-serif;padding:32px;color:#0f172a">Génération du PDF en cours…</p>';
-    previewWindow.focus();
-  }
+
+  if (previewWindow) showPreviewLoading(previewWindow);
+
   button.disabled = true;
   button.textContent = 'Préparation PDF...';
 
   try {
     if (document.fonts?.ready) await document.fonts.ready;
     const html = buildExportHtml();
-
-    if (mode === 'preview') {
-      button.textContent = 'Ouverture PDF...';
-      previewHtml(html, previewWindow);
-      button.textContent = 'PDF ouvert';
-      window.setTimeout(() => { button.textContent = original; }, 900);
-      return;
-    }
-
     button.textContent = 'Génération PDF...';
 
     const response = await fetch('/api/cahier-pdf', {
@@ -314,9 +280,20 @@ const exportPdf = async (button, mode = 'download') => {
     }
 
     const blob = await response.blob();
-    button.textContent = 'Téléchargement...';
-    downloadBlob(blob);
-    button.textContent = 'PDF téléchargé';
+
+    if (mode === 'preview') {
+      button.textContent = 'Ouverture PDF...';
+      const pdfUrl = URL.createObjectURL(blob);
+      previewWindow.location.replace(pdfUrl);
+      previewWindow.focus();
+      button.textContent = 'PDF ouvert';
+      window.setTimeout(() => URL.revokeObjectURL(pdfUrl), 60 * 60 * 1000);
+    } else {
+      button.textContent = 'Téléchargement...';
+      downloadBlob(blob);
+      button.textContent = 'PDF téléchargé';
+    }
+
     window.setTimeout(() => { button.textContent = original; }, 900);
   } catch (error) {
     if (previewWindow && !previewWindow.closed) previewWindow.close();
