@@ -265,9 +265,11 @@ const previewHtml = (html, previewWindow) => {
         ${html}
       </body>
     </html>`;
-  const previewUrl = URL.createObjectURL(new Blob([previewPage], { type: 'text/html;charset=utf-8' }));
-  previewWindow.location.replace(previewUrl);
-  window.setTimeout(() => URL.revokeObjectURL(previewUrl), 600000);
+  const previewDocument = previewWindow.document;
+  previewDocument.open('text/html', 'replace');
+  previewDocument.write(previewPage);
+  previewDocument.close();
+  previewWindow.focus();
 };
 
 const exportPdf = async (button, mode = 'download') => {
