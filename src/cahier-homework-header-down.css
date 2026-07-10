@@ -1,0 +1,9 @@
+body.cahier-tab-active .homework-page > div:first-child {
+  top: 20px !important;
+}
+
+@media print {
+  .homework-page > div:first-child {
+    top: 20px !important;
+  }
+}
