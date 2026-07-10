@@ -48,8 +48,20 @@ export default function CoverPage() {
             <div style={styles.infoRow}>
               <strong>Classes :</strong>
               <div style={styles.classLines}>
-                <input type="text" aria-label="Classes ligne 1" style={styles.classInput} />
-                <input type="text" aria-label="Classes ligne 2" style={styles.classInput} />
+                <div
+                  contentEditable
+                  suppressContentEditableWarning
+                  role="textbox"
+                  aria-label="Classes ligne 1"
+                  style={styles.classEditable}
+                />
+                <div
+                  contentEditable
+                  suppressContentEditableWarning
+                  role="textbox"
+                  aria-label="Classes ligne 2"
+                  style={styles.classEditable}
+                />
               </div>
             </div>
           </section>
@@ -138,7 +150,7 @@ const styles = {
   },
   infoBox: {
     position: 'relative',
-    zIndex: 2,
+    zIndex: 3,
     width: '72%',
     margin: '115px auto 0',
     display: 'grid',
@@ -146,7 +158,8 @@ const styles = {
     padding: '28px 34px',
     border: '2px solid rgba(75, 20, 95, 0.28)',
     borderRadius: '18px',
-    background: 'rgba(255,255,255,0.9)'
+    background: 'rgba(255,255,255,0.9)',
+    pointerEvents: 'auto'
   },
   infoRow: {
     display: 'grid',
@@ -156,19 +169,25 @@ const styles = {
   },
   classLines: {
     display: 'grid',
-    gap: '10px'
+    gap: '10px',
+    position: 'relative',
+    zIndex: 4,
+    pointerEvents: 'auto'
   },
-  classInput: {
+  classEditable: {
+    display: 'block',
     width: '100%',
-    height: '26px',
+    minHeight: '26px',
     padding: '0 2px',
     boxSizing: 'border-box',
-    border: 'none',
     borderBottom: '2px dotted #444',
     outline: 'none',
     background: 'transparent',
     color: '#1f1f1f',
-    font: 'inherit'
+    font: 'inherit',
+    cursor: 'text',
+    pointerEvents: 'auto',
+    userSelect: 'text'
   },
   fieldLine: {
     display: 'block',
