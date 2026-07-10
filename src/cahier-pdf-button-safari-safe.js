@@ -232,8 +232,8 @@ const buildExportHtml = () => {
   return `<style>${getCss()}\n${EXPORT_CSS}</style>${zone.outerHTML}`;
 };
 
-const downloadPdf = (pdfFile) => {
-  const url = URL.createObjectURL(pdfFile);
+const downloadPdf = (pdfBlob) => {
+  const url = URL.createObjectURL(pdfBlob);
   const link = document.createElement('a');
   link.href = url;
   link.download = PDF_FILENAME;
@@ -249,22 +249,44 @@ const showPreviewLoading = (previewWindow) => {
   previewWindow.document.close();
 };
 
-const isPdfBuffer = (buffer) => {
-  if (!buffer || buffer.byteLength < 5) return false;
-  const bytes = new Uint8Array(buffer, 0, 5);
-  return String.fromCharCode(...bytes) === '%PDF-';
+const submitPreviewForm = (html, previewWindow) => {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '/api/cahier-pdf?preview=1';
+  form.target = previewWindow.name;
+  form.enctype = 'application/x-www-form-urlencoded';
+  form.acceptCharset = 'UTF-8';
+  form.style.display = 'none';
+
+  const htmlField = document.createElement('textarea');
+  htmlField.name = 'html';
+  htmlField.value = html;
+  form.append(htmlField);
+
+  const baseUrlField = document.createElement('input');
+  baseUrlField.type = 'hidden';
+  baseUrlField.name = 'baseUrl';
+  baseUrlField.value = window.location.origin;
+  form.append(baseUrlField);
+
+  document.body.append(form);
+  form.submit();
+  form.remove();
 };
 
 const exportPdf = async (button, mode = 'download') => {
   const original = button.textContent;
-  const previewWindow = mode === 'preview' ? window.open('about:blank', '_blank') : null;
+  let previewWindow = null;
 
-  if (mode === 'preview' && !previewWindow) {
-    alert('Autorisez les fenêtres surgissantes pour voir le PDF.');
-    return;
+  if (mode === 'preview') {
+    const targetName = `cahier-pdf-preview-${Date.now()}`;
+    previewWindow = window.open('about:blank', targetName);
+    if (!previewWindow) {
+      alert('Autorisez les fenêtres surgissantes pour voir le PDF.');
+      return;
+    }
+    showPreviewLoading(previewWindow);
   }
-
-  if (previewWindow) showPreviewLoading(previewWindow);
 
   button.disabled = true;
   button.textContent = 'Préparation PDF...';
@@ -273,6 +295,16 @@ const exportPdf = async (button, mode = 'download') => {
     if (document.fonts?.ready) await document.fonts.ready;
     const html = buildExportHtml();
     button.textContent = 'Génération PDF...';
+
+    if (mode === 'preview') {
+      submitPreviewForm(html, previewWindow);
+      button.textContent = 'PDF en cours...';
+      window.setTimeout(() => {
+        button.textContent = original;
+        button.disabled = false;
+      }, 1500);
+      return;
+    }
 
     const response = await fetch('/api/cahier-pdf', {
       method: 'POST',
@@ -286,32 +318,17 @@ const exportPdf = async (button, mode = 'download') => {
       throw new Error(message);
     }
 
-    const buffer = await response.arrayBuffer();
-    if (!isPdfBuffer(buffer)) throw new Error('Le serveur n’a pas renvoyé un PDF valide.');
-
-    const pdfFile = new File([buffer], PDF_FILENAME, { type: 'application/pdf' });
-    if (pdfFile.size < 1000) throw new Error('Le PDF généré est vide.');
-
-    if (mode === 'preview') {
-      button.textContent = 'Ouverture PDF...';
-      const pdfUrl = URL.createObjectURL(pdfFile);
-      previewWindow.location.href = pdfUrl;
-      previewWindow.focus();
-      button.textContent = 'PDF ouvert';
-      window.setTimeout(() => URL.revokeObjectURL(pdfUrl), 60 * 60 * 1000);
-    } else {
-      button.textContent = 'Téléchargement...';
-      downloadPdf(pdfFile);
-      button.textContent = 'PDF téléchargé';
-    }
-
+    const blob = await response.blob();
+    button.textContent = 'Téléchargement...';
+    downloadPdf(blob);
+    button.textContent = 'PDF téléchargé';
     window.setTimeout(() => { button.textContent = original; }, 900);
   } catch (error) {
     if (previewWindow && !previewWindow.closed) previewWindow.close();
     alert(`Erreur PDF : ${error?.message || 'export impossible'}`);
     button.textContent = original;
   } finally {
-    button.disabled = false;
+    if (mode !== 'preview') button.disabled = false;
   }
 };
 
