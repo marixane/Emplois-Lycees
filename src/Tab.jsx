@@ -243,6 +243,11 @@ export default function Tab() {
       const dayIndex = getMondayBasedDayIndex(date);
       const monthDate = formatMonthDate(date);
 
+      if (monthDate === '05/09') {
+        const saturdaySessions = (sessionsByDay[5] ?? []).filter((session) => classSet.has(session.className));
+        if (!saturdaySessions.length) return [];
+      }
+
       const eventEntries = getMandatoryEventStart(monthDate).map((event, eventIndex) => {
         const endDate = getMonthDateAsSchoolDate(event.end);
         const displayDate = event.start === event.end ? `${getDisplayDay(date, rows)} ${event.start}` : `${getDisplayDay(date, rows)} ${event.start} - ${getDisplayDay(endDate, rows)} ${event.end}`;
