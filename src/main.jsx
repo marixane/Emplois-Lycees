@@ -91,6 +91,7 @@ import './cahier-top-space-fix.css';
 import './cahier-page-numbers.css';
 import './cahier-hide-extra-school-year.css';
 import './cahier-group-box-polish.css';
+import './cahier-group-class-text-size.css';
 import './cahier-fixed-five-entries.css';
 import './cahier-session-fit.css';
 import './cahier-session-duration.js';
