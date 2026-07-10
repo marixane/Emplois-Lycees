@@ -3,7 +3,9 @@ const moveHomeworkHeaders = () => {
     const header = page.firstElementChild;
     if (!(header instanceof HTMLElement)) return;
 
-    header.style.setProperty('transform', 'translateY(10px)', 'important');
+    header.style.removeProperty('transform');
+    header.style.setProperty('position', 'absolute', 'important');
+    header.style.setProperty('top', '100px', 'important');
   });
 };
 
