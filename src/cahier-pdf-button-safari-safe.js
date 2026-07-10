@@ -4,6 +4,7 @@ const A4_WIDTH = '210mm';
 const A4_HEIGHT = '297mm';
 const EXIT_TEXT = 'Signature du Procès-verbal de sortie';
 const EXIT_DATE = 'SAMEDI 10/07/2027';
+const PDF_FILENAME = 'Cahier-de-texte-2026-2027.pdf';
 
 const EXPORT_CSS = `
   @page { size: ${A4_WIDTH} ${A4_HEIGHT}; margin: 0; }
@@ -231,21 +232,27 @@ const buildExportHtml = () => {
   return `<style>${getCss()}\n${EXPORT_CSS}</style>${zone.outerHTML}`;
 };
 
-const downloadBlob = (blob) => {
-  const url = URL.createObjectURL(blob);
+const downloadPdf = (pdfFile) => {
+  const url = URL.createObjectURL(pdfFile);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'Cahier-de-texte-2026-2027.pdf';
+  link.download = PDF_FILENAME;
   document.body.append(link);
   link.click();
   link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+  window.setTimeout(() => URL.revokeObjectURL(url), 5000);
 };
 
 const showPreviewLoading = (previewWindow) => {
   previewWindow.document.open();
   previewWindow.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Génération PDF…</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;font-family:Arial,sans-serif;color:#0f172a"><div style="text-align:center"><h2>Génération du PDF en cours…</h2><p>Veuillez patienter.</p></div></body></html>');
   previewWindow.document.close();
+};
+
+const isPdfBuffer = (buffer) => {
+  if (!buffer || buffer.byteLength < 5) return false;
+  const bytes = new Uint8Array(buffer, 0, 5);
+  return String.fromCharCode(...bytes) === '%PDF-';
 };
 
 const exportPdf = async (button, mode = 'download') => {
@@ -279,18 +286,22 @@ const exportPdf = async (button, mode = 'download') => {
       throw new Error(message);
     }
 
-    const blob = await response.blob();
+    const buffer = await response.arrayBuffer();
+    if (!isPdfBuffer(buffer)) throw new Error('Le serveur n’a pas renvoyé un PDF valide.');
+
+    const pdfFile = new File([buffer], PDF_FILENAME, { type: 'application/pdf' });
+    if (pdfFile.size < 1000) throw new Error('Le PDF généré est vide.');
 
     if (mode === 'preview') {
       button.textContent = 'Ouverture PDF...';
-      const pdfUrl = URL.createObjectURL(blob);
-      previewWindow.location.replace(pdfUrl);
+      const pdfUrl = URL.createObjectURL(pdfFile);
+      previewWindow.location.href = pdfUrl;
       previewWindow.focus();
       button.textContent = 'PDF ouvert';
       window.setTimeout(() => URL.revokeObjectURL(pdfUrl), 60 * 60 * 1000);
     } else {
       button.textContent = 'Téléchargement...';
-      downloadBlob(blob);
+      downloadPdf(pdfFile);
       button.textContent = 'PDF téléchargé';
     }
 
