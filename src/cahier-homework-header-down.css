@@ -1,11 +1,11 @@
-body.cahier-tab-active .homework-page > div[style*="grid-template-columns: 230px 1fr"],
-body.cahier-tab-active .homework-page > div[style*="grid-template-columns:230px 1fr"] {
-  transform: translateY(10px) !important;
+body.cahier-tab-active .homework-page > div:first-child {
+  position: absolute !important;
+  top: 20px !important;
 }
 
 @media print {
-  .homework-page > div[style*="grid-template-columns: 230px 1fr"],
-  .homework-page > div[style*="grid-template-columns:230px 1fr"] {
-    transform: translateY(10px) !important;
+  .homework-page > div:first-child {
+    position: absolute !important;
+    top: 20px !important;
   }
 }
