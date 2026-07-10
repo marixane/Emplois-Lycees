@@ -26,7 +26,7 @@ const arrangeTimetableControls = () => {
   total.style.setProperty('justify-content', 'center', 'important');
   total.style.setProperty('width', 'fit-content', 'important');
   total.style.setProperty('min-width', '240px', 'important');
-  total.style.setProperty('margin', '24px auto 0', 'important');
+  total.style.setProperty('margin', '44px auto 0', 'important');
   total.style.setProperty('padding', '14px 28px', 'important');
   total.style.setProperty('border', '2px solid rgba(30,64,175,.22)', 'important');
   total.style.setProperty('border-radius', '16px', 'important');
