@@ -62,7 +62,7 @@ const sessionClassStyle = { display: 'block', minWidth: 0, overflow: 'hidden', t
 const levelGroupsStyle = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '10px' };
 const levelGroupTitleStyle = { marginBottom: '8px', color: '#111827', fontSize: '12px', fontWeight: 900, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.3px' };
 const levelGroupClassesStyle = { display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start', gap: '7px', minHeight: '130px', color: 'rgba(17, 17, 17, 0.45)', fontSize: '10px', fontWeight: 800, lineHeight: 1.1, textAlign: 'center' };
-const levelChipStyle = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '100%', minHeight: '28px', padding: '7px 9px', borderRadius: '9px', border: '1px solid rgba(17, 17, 17, 0.22)', color: '#111827', fontSize: '12px', fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'grab', boxShadow: '0 1px 3px rgba(17, 17, 17, 0.12)' };
+const levelChipStyle = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '100%', minHeight: '28px', padding: '7px 9px', borderRadius: '9px', border: '1px solid rgba(17, 17, 17, 0.22)', color: '#111827', fontSize: '15.6px', fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'grab', boxShadow: '0 1px 3px rgba(17, 17, 17, 0.12)' };
 const examListWrapStyle = { marginTop: '10px', border: '2px solid rgba(30, 58, 138, 0.35)', borderRadius: '14px', overflow: 'hidden', background: 'rgba(219, 234, 254, 0.45)' };
 const examListTitleStyle = { padding: '7px 12px', background: 'linear-gradient(90deg, rgba(191,219,254,0.9), rgba(239,246,255,0.95))', color: '#111827', fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.3px' };
 const examListTableStyle = { width: '100%', borderCollapse: 'collapse', fontFamily: 'Arial, sans-serif', background: 'white' };
@@ -259,43 +259,39 @@ export default function Tab() {
       if (dayIndex >= rows.length || !classSet.size) return eventEntries;
       const sessions = (sessionsByDay[dayIndex] ?? []).filter((session) => classSet.has(session.className));
       if (!sessions.length) return eventEntries;
-      return [...eventEntries, { date: `${getDisplayDay(date, rows)} ${monthDate}`, sessions, text: DOT_TEXT, isHoliday: false, isExam: false, progressDate: monthDate, color: HOMEWORK_COLORS[dayIndex % HOMEWORK_COLORS.length] }];
-    }).filter(Boolean);
+      return [...eventEntries, { date: `${getDisplayDay(date, rows)} ${monthDate}`, sessions, text: DOT_TEXT, progressDate: monthDate, color: HOMEWORK_COLORS[dayIndex % HOMEWORK_COLORS.length] }];
+    });
 
-    return { title: GROUP_TITLES[groupIndex], color: GROUP_COLORS[groupIndex], classes: group.classes, pages: chunkEntries(entries, 5) };
-  }).filter((group) => group.classes.length > 0 && group.pages.length > 0);
+    return { ...group, color: GROUP_COLORS[groupIndex], pages: chunkEntries(entries, 5) };
+  });
 
-  const canExtendLeft = (row, hourIndex) => hourIndex > 0 && Boolean(normalizeCell(row.cells[hours[hourIndex]]).text.trim()) && !normalizeCell(row.cells[hours[hourIndex - 1]]).hidden && !normalizeCell(row.cells[hours[hourIndex - 1]]).text.trim();
   const canExtendRight = (row, hourIndex) => {
     const cell = normalizeCell(row.cells[hours[hourIndex]]);
     const nextIndex = hourIndex + cell.span;
-    return Boolean(cell.text.trim()) && nextIndex < hours.length && !normalizeCell(row.cells[hours[nextIndex]]).hidden && !normalizeCell(row.cells[hours[nextIndex]]).text.trim();
+    return nextIndex < hours.length && !normalizeCell(row.cells[hours[nextIndex]]).hidden && !normalizeCell(row.cells[hours[nextIndex]]).text.trim();
   };
-  const canPasteCell = (row, hourIndex, cellToPaste) => {
-    const sourceCell = normalizeCell(cellToPaste);
-    if (!sourceCell.text.trim() || hourIndex + sourceCell.span > hours.length) return false;
-    for (let index = hourIndex; index < hourIndex + sourceCell.span; index += 1) {
+  const canExtendLeft = (row, hourIndex) => hourIndex > 0 && !normalizeCell(row.cells[hours[hourIndex - 1]]).hidden && !normalizeCell(row.cells[hours[hourIndex - 1]]).text.trim();
+  const canPasteCell = (row, hourIndex, source) => {
+    const normalizedSource = normalizeCell(source);
+    for (let index = hourIndex; index < hourIndex + normalizedSource.span; index += 1) {
+      if (index >= hours.length) return false;
       const target = normalizeCell(row.cells[hours[index]]);
       if (target.hidden || target.text.trim()) return false;
     }
     return true;
   };
-
-  const duplicateCellTo = (dayIndex, hourIndex, cellToPaste) => {
+  const duplicateCellTo = (dayIndex, hourIndex, source) => {
+    const normalizedSource = normalizeCell(source);
     setRows((current) => current.map((row, i) => {
-      if (i !== dayIndex || !canPasteCell(row, hourIndex, cellToPaste)) return row;
-      const pasted = cloneCell(cellToPaste);
-      const nextCells = { ...row.cells, [hours[hourIndex]]: pasted };
-      for (let index = hourIndex + 1; index < hourIndex + pasted.span; index += 1) nextCells[hours[index]] = { ...createCell(), hidden: true };
+      if (i !== dayIndex || !canPasteCell(row, hourIndex, normalizedSource)) return row;
+      const nextCells = { ...row.cells, [hours[hourIndex]]: { ...normalizedSource, hidden: false } };
+      for (let index = hourIndex + 1; index < hourIndex + normalizedSource.span; index += 1) nextCells[hours[index]] = { ...createCell(), hidden: true };
       return { ...row, cells: nextCells };
     }));
-    setCopiedCell(cloneCell(cellToPaste));
-    setSelectedCell(`${dayIndex}-${hourIndex}`);
   };
 
   const handleCellClick = (dayIndex, hourIndex, cell) => {
     const normalized = normalizeCell(cell);
-    if (!normalized.text.trim()) return;
     setCopiedCell(cloneCell(normalized));
     setSelectedCell(`${dayIndex}-${hourIndex}`);
   };
@@ -428,9 +424,17 @@ export default function Tab() {
               <div style={progressPercentStyle}>{getPageProgressPercent(pageEntries)}%</div>
             </div>
           </div>
-          {pageEntries.map((entry) => <section className={`homework-entry ${entry.isExam ? 'cahier-exam-entry' : ''} ${entry.isHoliday ? 'cahier-extra-holiday-entry' : ''}`} key={`${group.title}-${entry.date}-${entry.eventKey || entry.text}`} style={{ '--homework-color': entry.color }}>
-            <div className="homework-date" contentEditable suppressContentEditableWarning onKeyDown={validateOnEnter}>{entry.date}</div>
-            <div className="homework-content"><div className="homework-subject" contentEditable={entry.sessions.length === 0} suppressContentEditableWarning onKeyDown={validateOnEnter} style={entry.sessions.length ? subjectTextStyle : undefined}>{entry.sessions.map((session) => <div key={`${group.title}-${entry.date}-${session.hour}-${session.className}`} style={sessionLineStyle}><span style={sessionHourStyle}>{session.hour}</span><span style={sessionClassStyle}>{session.className}</span></div>)}</div><div className="homework-text" contentEditable suppressContentEditableWarning onKeyDown={validateOnEnter} style={entry.isHoliday ? holidayTextStyle : entry.isExam ? examTextStyle : dotTextStyle}>{entry.text}</div></div>
+          {pageEntries.map((entry, entryIndex) => <section className={`homework-entry ${entry.isHoliday ? 'cahier-extra-holiday-entry' : ''} ${entry.isExam ? 'cahier-exam-entry' : ''}`} key={`${entry.date}-${entry.eventKey || entryIndex}`} style={{ '--homework-color': entry.color }}>
+            <div className="homework-date">{entry.date}</div>
+            <div className="homework-content">
+              <div className="homework-subject" style={subjectTextStyle}>
+                {entry.sessions.map((session, sessionIndex) => <div key={`${session.hour}-${session.className}-${sessionIndex}`} style={sessionLineStyle}>
+                  <span style={sessionHourStyle}>{session.hour}</span>
+                  <span style={sessionClassStyle}>{session.className}</span>
+                </div>)}
+              </div>
+              <div className="homework-text" contentEditable suppressContentEditableWarning style={entry.isHoliday ? holidayTextStyle : entry.isExam ? examTextStyle : dotTextStyle} />
+            </div>
           </section>)}
         </div>)
       ])}
