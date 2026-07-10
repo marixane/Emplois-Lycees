@@ -43,6 +43,29 @@ const resizeClassLabels = () => {
       label.style.setProperty('font-size', `${size}px`, 'important');
     }
   });
+
+  document.querySelectorAll('.cahier-page').forEach((page) => {
+    Array.from(page.querySelectorAll('div')).forEach((container) => {
+      const groups = Array.from(container.children);
+      if (groups.length !== 3) return;
+
+      const titles = groups.map((group) => String(group.textContent || '').replace(/\s+/g, ' ').trim().toUpperCase());
+      const isTargetGroups = titles[0].startsWith('TRONC COMMUN')
+        && titles[1].startsWith('1ÈRES BAC')
+        && titles[2].startsWith('2ÈME BAC');
+      if (!isTargetGroups) return;
+
+      groups.forEach((group) => {
+        const classesArea = group.children[1];
+        if (!classesArea) return;
+        Array.from(classesArea.children).forEach((chip) => {
+          chip.style.setProperty('font-size', '20px', 'important');
+          chip.style.setProperty('line-height', '1.15', 'important');
+          chip.style.setProperty('min-height', '36px', 'important');
+        });
+      });
+    });
+  });
 };
 
 let classLabelFrame = 0;
@@ -65,3 +88,4 @@ document.addEventListener('input', scheduleClassLabelResize, true);
 document.addEventListener('focusout', scheduleClassLabelResize, true);
 document.addEventListener('drop', scheduleClassLabelResize, true);
 document.addEventListener('click', scheduleClassLabelResize, true);
+new MutationObserver(scheduleClassLabelResize).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
