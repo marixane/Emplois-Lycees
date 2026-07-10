@@ -1,6 +1,5 @@
 const PREVIEW_BUTTON_ID = 'cahier-pdf-preview-stable';
 const DOWNLOAD_BUTTON_ID = 'cahier-pdf-button-stable';
-const PDF_ENDPOINT = '/api/cahier-pdf';
 
 const writeLoadingPage = (previewWindow) => {
   previewWindow.document.open();
@@ -21,28 +20,14 @@ const writeLoadingPage = (previewWindow) => {
   previewWindow.document.close();
 };
 
-const isPdfEndpoint = (input) => {
-  try {
-    const value = input instanceof Request ? input.url : String(input || '');
-    return new URL(value, window.location.origin).pathname === PDF_ENDPOINT;
-  } catch {
-    return false;
-  }
-};
-
-const hasPdfSignature = (buffer) => {
-  if (!buffer || buffer.byteLength < 5) return false;
-  const bytes = new Uint8Array(buffer, 0, 5);
-  return String.fromCharCode(...bytes) === '%PDF-';
-};
-
 const replacePreviewBehavior = () => {
   const previewButton = document.getElementById(PREVIEW_BUTTON_ID);
   const downloadButton = document.getElementById(DOWNLOAD_BUTTON_ID);
-  if (!previewButton || !downloadButton || previewButton.dataset.pdfPreviewFixed === 'response') return;
+
+  if (!previewButton || !downloadButton || previewButton.dataset.pdfPreviewFixed === 'exact-blob') return;
 
   const replacement = previewButton.cloneNode(true);
-  replacement.dataset.pdfPreviewFixed = 'response';
+  replacement.dataset.pdfPreviewFixed = 'exact-blob';
   previewButton.replaceWith(replacement);
 
   replacement.addEventListener('click', () => {
@@ -55,7 +40,9 @@ const replacePreviewBehavior = () => {
     writeLoadingPage(previewWindow);
 
     const originalText = replacement.textContent;
-    const originalFetch = window.fetch.bind(window);
+    const originalCreateObjectURL = URL.createObjectURL.bind(URL);
+    const originalRevokeObjectURL = URL.revokeObjectURL.bind(URL);
+
     let completed = false;
     let restored = false;
     let pdfUrl = '';
@@ -63,60 +50,62 @@ const replacePreviewBehavior = () => {
     replacement.disabled = true;
     replacement.textContent = 'Préparation PDF...';
 
-    const stopDownload = (event) => {
+    const stopPdfDownload = (event) => {
       const link = event.target?.closest?.('a[download]');
-      if (!link || !String(link.download).toLowerCase().endsWith('.pdf')) return;
+      if (!link) return;
+
+      const filename = String(link.download || '').toLowerCase();
+      if (!filename.endsWith('.pdf')) return;
+
       event.preventDefault();
       event.stopImmediatePropagation();
     };
 
-    const restore = () => {
+    const restoreHooks = () => {
       if (restored) return;
       restored = true;
-      window.fetch = originalFetch;
-      document.removeEventListener('click', stopDownload, true);
+      URL.createObjectURL = originalCreateObjectURL;
+      URL.revokeObjectURL = originalRevokeObjectURL;
+      document.removeEventListener('click', stopPdfDownload, true);
       replacement.disabled = false;
-      window.setTimeout(() => { replacement.textContent = originalText; }, 900);
+      window.setTimeout(() => {
+        replacement.textContent = originalText;
+      }, 900);
     };
 
     const fail = (error) => {
-      restore();
+      restoreHooks();
       if (!previewWindow.closed) previewWindow.close();
       alert(`Erreur PDF : ${error?.message || 'aperçu impossible'}`);
     };
 
-    document.addEventListener('click', stopDownload, true);
+    document.addEventListener('click', stopPdfDownload, true);
 
-    window.fetch = async (...args) => {
-      const response = await originalFetch(...args);
+    URL.createObjectURL = (blob) => {
+      const url = originalCreateObjectURL(blob);
 
-      if (!isPdfEndpoint(args[0]) || !response.ok) return response;
-
-      const previewResponse = response.clone();
-
-      previewResponse.arrayBuffer().then((buffer) => {
-        if (!hasPdfSignature(buffer)) {
-          throw new Error('La réponse reçue n’est pas un fichier PDF valide.');
-        }
-
-        const blob = new Blob([buffer], { type: 'application/pdf' });
-        if (blob.size < 1000) {
-          throw new Error('Le fichier PDF généré est vide.');
-        }
-
+      if (!completed && blob instanceof Blob && String(blob.type || '').toLowerCase().includes('pdf')) {
         completed = true;
+        pdfUrl = url;
         replacement.textContent = 'Ouverture PDF...';
-        pdfUrl = URL.createObjectURL(blob);
         previewWindow.location.replace(pdfUrl);
         replacement.textContent = 'PDF ouvert';
-        restore();
 
         window.setTimeout(() => {
-          if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-        }, 60 * 60 * 1000);
-      }).catch(fail);
+          restoreHooks();
+        }, 3000);
 
-      return response;
+        window.setTimeout(() => {
+          if (pdfUrl) originalRevokeObjectURL(pdfUrl);
+        }, 60 * 60 * 1000);
+      }
+
+      return url;
+    };
+
+    URL.revokeObjectURL = (url) => {
+      if (url === pdfUrl) return;
+      originalRevokeObjectURL(url);
     };
 
     downloadButton.click();
