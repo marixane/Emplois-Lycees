@@ -13,7 +13,10 @@ export default function App() {
     };
   }, []);
 
-  useLayoutEffect(() => scheduleFullDates());
+  useLayoutEffect(() => {
+    scheduleFullDates();
+    document.querySelectorAll('.holidays-page').forEach((page) => page.remove());
+  });
 
   return <>
     <CoverPage />
