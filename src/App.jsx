@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect } from 'react';
+import CoverPage from './CoverPage.jsx';
 import TabWithFullDates from './TabWithFullDates.jsx';
 import { scheduleFullDates } from './force-full-cahier-dates.js';
 
@@ -14,5 +15,8 @@ export default function App() {
 
   useLayoutEffect(() => scheduleFullDates());
 
-  return <TabWithFullDates />;
+  return <>
+    <CoverPage />
+    <TabWithFullDates />
+  </>;
 }
