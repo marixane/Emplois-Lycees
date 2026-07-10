@@ -1,14 +1,9 @@
 const moveHomeworkHeaders = () => {
   document.querySelectorAll('.homework-page').forEach((page) => {
-    const header = Array.from(page.children).find((element) => {
-      if (!(element instanceof HTMLElement)) return false;
-      const text = String(element.textContent || '').replace(/\s+/g, ' ').trim().toUpperCase();
-      const hasProgress = element.querySelector('[style*="border-radius: 999px"]');
-      return hasProgress && (text.startsWith('TRONC COMMUN') || text.startsWith('1ÈRES BAC') || text.startsWith('2ÈME BAC'));
-    });
+    const header = page.firstElementChild;
+    if (!(header instanceof HTMLElement)) return;
 
-    if (!header) return;
-    header.style.setProperty('top', '20px', 'important');
+    header.style.setProperty('transform', 'translateY(10px)', 'important');
   });
 };
 
@@ -19,6 +14,7 @@ const scheduleHomeworkHeaderMove = () => {
     moveHomeworkHeaders();
     setTimeout(moveHomeworkHeaders, 100);
     setTimeout(moveHomeworkHeaders, 300);
+    setTimeout(moveHomeworkHeaders, 700);
   });
 };
 
