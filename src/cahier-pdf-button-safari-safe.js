@@ -243,9 +243,30 @@ const downloadBlob = (blob) => {
 };
 
 const previewBlob = (blob, previewWindow) => {
-  const url = URL.createObjectURL(blob);
-  previewWindow.location.href = url;
-  window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+  const pdfBlob = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+  const url = URL.createObjectURL(pdfBlob);
+  const previewDocument = previewWindow.document;
+  previewDocument.open();
+  previewDocument.write(`<!doctype html>
+    <html lang="fr">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Aperçu PDF — Cahier de texte</title>
+        <style>
+          html,body{width:100%;height:100%;margin:0;background:#334155;font-family:Arial,sans-serif;overflow:hidden}
+          .pdf-toolbar{height:48px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#0f172a;color:#fff;font-weight:900}
+          .pdf-toolbar a{padding:8px 14px;border-radius:9px;background:#16a34a;color:#fff;text-decoration:none;box-shadow:0 3px 0 #14532d}
+          iframe{display:block;width:100%;height:calc(100% - 48px);border:0;background:#fff}
+        </style>
+      </head>
+      <body>
+        <div class="pdf-toolbar"><span>Aperçu du cahier de texte</span><a href="${url}" download="Cahier-de-texte-2026-2027.pdf">Télécharger</a></div>
+        <iframe src="${url}" title="Aperçu du PDF"></iframe>
+      </body>
+    </html>`);
+  previewDocument.close();
+  previewWindow.addEventListener('beforeunload', () => URL.revokeObjectURL(url), { once: true });
 };
 
 const exportPdf = async (button, mode = 'download') => {
@@ -255,7 +276,11 @@ const exportPdf = async (button, mode = 'download') => {
     alert('Autorisez les fenêtres surgissantes pour voir le PDF.');
     return;
   }
-  if (previewWindow) previewWindow.opener = null;
+  if (previewWindow) {
+    previewWindow.opener = null;
+    previewWindow.document.title = 'Génération de l’aperçu PDF…';
+    previewWindow.document.body.innerHTML = '<p style="font:700 18px Arial,sans-serif;padding:32px;color:#0f172a">Génération du PDF en cours…</p>';
+  }
   button.disabled = true;
   button.textContent = 'Préparation PDF...';
 
