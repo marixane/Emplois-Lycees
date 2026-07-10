@@ -1,9 +1,11 @@
-body.cahier-tab-active .homework-page > div:first-child {
+body.cahier-tab-active .homework-page > div[style*="position: absolute"][style*="top: 10px"],
+body.cahier-tab-active .homework-page > div[style*="position:absolute"][style*="top:10px"] {
   top: 40px !important;
 }
 
 @media print {
-  .homework-page > div:first-child {
+  .homework-page > div[style*="position: absolute"][style*="top: 10px"],
+  .homework-page > div[style*="position:absolute"][style*="top:10px"] {
     top: 40px !important;
   }
 }
