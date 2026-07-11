@@ -1,11 +1,1 @@
-body.cahier-tab-active .homework-page > div:first-child {
-  position: absolute !important;
-  top: 70px !important;
-}
-
-@media print {
-  .homework-page > div:first-child {
-    position: absolute !important;
-    top: 70px !important;
-  }
-}
+/* Désactivé : les essais de déplacement de la barrette provoquaient des conflits. */
