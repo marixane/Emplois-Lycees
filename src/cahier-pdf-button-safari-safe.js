@@ -5,6 +5,9 @@ const A4_HEIGHT = '297mm';
 const EXIT_TEXT = 'Signature du Procès-verbal de sortie';
 const EXIT_DATE = 'SAMEDI 10/07/2027';
 const PDF_FILENAME = 'Cahier-de-texte-2026-2027.pdf';
+const LEGACY_COVER_SELECTOR = '#cahier-main-cover-page, .cahier-main-cover-page, [data-force-first-page="true"]';
+const COMPACT_PDF_HIDDEN_HOUR_START = 4;
+const COMPACT_PDF_HIDDEN_HOUR_END = 6;
 
 const EXPORT_CSS = `
   @page { size: ${A4_WIDTH} ${A4_HEIGHT}; margin: 0; }
@@ -129,12 +132,78 @@ const prepareClone = (clone) => {
     textarea.setAttribute('value', textarea.value);
   });
   clone.querySelectorAll('input').forEach((input) => input.setAttribute('value', input.value));
+  clone.querySelectorAll('.cahier-extra-holiday-entry .homework-text, .cahier-exam-entry .homework-text').forEach((box) => {
+    box.style.setProperty('box-sizing', 'border-box', 'important');
+    box.style.setProperty('align-self', 'center', 'important');
+    box.style.setProperty('width', 'calc(100% - 56px)', 'important');
+    box.style.setProperty('height', '88px', 'important');
+    box.style.setProperty('min-height', '88px', 'important');
+    box.style.setProperty('max-height', '88px', 'important');
+    box.style.setProperty('margin', 'auto 28px', 'important');
+    box.style.setProperty('border-radius', '12px', 'important');
+  });
   clone.style.setProperty('width', A4_WIDTH, 'important');
   clone.style.setProperty('height', A4_HEIGHT, 'important');
   clone.style.setProperty('margin', '0', 'important');
   clone.style.setProperty('transform', 'none', 'important');
   clone.style.setProperty('zoom', '1', 'important');
   clone.style.setProperty('overflow', 'hidden', 'important');
+};
+
+const prepareCompactTimetablesForPdf = (zone) => {
+  const keepCellPart = (cell, span, startsAfterBreak = false) => {
+    cell.colSpan = span;
+    if (startsAfterBreak) {
+      cell.classList.add('cahier-pdf-after-break');
+      cell.style.setProperty('border-left', '4px solid #000', 'important');
+    }
+  };
+
+  const transformRow = (row) => {
+    let logicalHourIndex = 0;
+
+    Array.from(row.cells).slice(1).forEach((cell) => {
+      const originalSpan = Math.max(Number(cell.colSpan) || 1, 1);
+      const cellEnd = logicalHourIndex + originalSpan;
+      const beforeBreakSpan = Math.max(
+        0,
+        Math.min(cellEnd, COMPACT_PDF_HIDDEN_HOUR_START) - logicalHourIndex,
+      );
+      const afterBreakSpan = Math.max(
+        0,
+        cellEnd - Math.max(logicalHourIndex, COMPACT_PDF_HIDDEN_HOUR_END),
+      );
+
+      if (beforeBreakSpan > 0 && afterBreakSpan > 0) {
+        const afterBreakCell = cell.cloneNode(true);
+        keepCellPart(cell, beforeBreakSpan);
+        keepCellPart(afterBreakCell, afterBreakSpan, true);
+        cell.after(afterBreakCell);
+      } else if (beforeBreakSpan > 0) {
+        keepCellPart(cell, beforeBreakSpan);
+      } else if (afterBreakSpan > 0) {
+        keepCellPart(
+          cell,
+          afterBreakSpan,
+          logicalHourIndex <= COMPACT_PDF_HIDDEN_HOUR_END,
+        );
+      } else {
+        cell.remove();
+      }
+
+      logicalHourIndex = cellEnd;
+    });
+  };
+
+  zone.querySelectorAll('.timetable-table.compact-pdf-hours').forEach((table) => {
+    table.querySelectorAll('thead tr, tbody tr').forEach(transformRow);
+    table.style.setProperty('width', '96%', 'important');
+    table.style.setProperty('margin-left', 'auto', 'important');
+    table.style.setProperty('margin-right', 'auto', 'important');
+    table.style.setProperty('table-layout', 'fixed', 'important');
+    table.dataset.cahierPdfCompactNormalized = 'true';
+    table.classList.remove('compact-pdf-hours');
+  });
 };
 
 const removeAfterJuly10 = (zone) => {
@@ -201,8 +270,21 @@ const ensurePdfIncludesJuly10 = (zone) => {
   zone.append(makeExitPage(lastHomeworkPage));
 };
 
+const keepReferencePagesLast = (zone) => {
+  const examsPages = Array.from(zone.querySelectorAll('#cahier-exams-groups-page, .cahier-exams-groups-page'));
+  const holidaysPages = Array.from(zone.querySelectorAll('#cahier-holidays-page, .holidays-page'));
+  const examsPage = examsPages[examsPages.length - 1];
+  const holidaysPage = holidaysPages[holidaysPages.length - 1];
+
+  examsPages.slice(0, -1).forEach((page) => page.remove());
+  holidaysPages.slice(0, -1).forEach((page) => page.remove());
+  if (examsPage) zone.append(examsPage);
+  if (holidaysPage) zone.append(holidaysPage);
+};
+
 const buildExportHtml = () => {
   const pages = Array.from(document.querySelectorAll('.cahier-preview-zone .a4-page, .cahier-preview-zone .cahier-page')).filter((page) => {
+    if (page.matches(LEGACY_COVER_SELECTOR)) return false;
     const rect = page.getBoundingClientRect();
     const style = window.getComputedStyle(page);
     return rect.width > 50 && rect.height > 50 && style.display !== 'none' && style.visibility !== 'hidden';
@@ -223,11 +305,13 @@ const buildExportHtml = () => {
     zone.append(clone);
   });
 
+  prepareCompactTimetablesForPdf(zone);
   applySessionDurationsForPdf(zone);
   removeAfterJuly10(zone);
   appendExitPageForEachGroup(zone);
   ensurePdfIncludesJuly10(zone);
   applyFullYearsForPdf(zone);
+  keepReferencePagesLast(zone);
 
   return `<style>${getCss()}\n${EXPORT_CSS}</style>${zone.outerHTML}`;
 };
@@ -334,8 +418,8 @@ const exportPdf = async (button, mode = 'download') => {
 
 const styleButton = (button, side) => {
   button.hidden = false;
-  const horizontalPosition = side === 'left' ? 'left:8px!important;right:auto!important;' : 'right:8px!important;left:auto!important;';
-  button.style.cssText = `position:fixed!important;${horizontalPosition}bottom:18px!important;z-index:2147483647!important;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;box-sizing:border-box!important;border:1px solid #15803d!important;border-bottom:3px solid #14532d!important;border-radius:12px!important;padding:9px 15px!important;width:417px!important;height:62px!important;max-width:calc(50vw - 12px)!important;min-width:0!important;background:linear-gradient(180deg,#4ade80 0%,#16a34a 52%,#15803d 100%)!important;color:white!important;font:900 13px Arial,sans-serif!important;text-shadow:0 1px 1px rgba(0,0,0,.38)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 5px 0 #14532d,0 9px 16px rgba(0,0,0,.3)!important;transform:translateY(-2px)!important;cursor:pointer!important;transition:transform .12s ease,box-shadow .12s ease!important;`;
+  const bottomPosition = side === 'left' ? 146 : 82;
+  button.style.cssText = `position:fixed!important;left:8px!important;right:auto!important;bottom:${bottomPosition}px!important;z-index:2147483647!important;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;box-sizing:border-box!important;border:1px solid #15803d!important;border-bottom:2px solid #14532d!important;border-radius:10px!important;padding:7px 12px!important;width:334px!important;height:50px!important;max-width:calc(100vw - 16px)!important;min-width:0!important;background:linear-gradient(180deg,#4ade80 0%,#16a34a 52%,#15803d 100%)!important;color:white!important;font:900 21px Arial,sans-serif!important;text-shadow:0 1px 1px rgba(0,0,0,.38)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 0 #14532d,0 7px 13px rgba(0,0,0,.3)!important;transform:translateY(-2px)!important;cursor:pointer!important;transition:transform .12s ease,box-shadow .12s ease!important;`;
 };
 
 const freshButton = (id) => {

@@ -105,7 +105,8 @@ export default async function handler(req, res) {
       overflow: visible !important;
     }
     body { min-height: ${A4_HEIGHT_CSS} !important; }
-    .cahier-pdf-export-button, .app-tabs, .tab-button, button { display: none !important; }
+    .cahier-pdf-export-button, .app-tabs, .tab-button, button,
+    #cahier-main-cover-page, .cahier-main-cover-page, [data-force-first-page="true"] { display: none !important; }
     .cahier-preview-zone, .preview-zone {
       width: ${A4_WIDTH_CSS} !important;
       min-width: ${A4_WIDTH_CSS} !important;
@@ -184,6 +185,72 @@ export default async function handler(req, res) {
         Array.from(row.cells).slice(0, 2).forEach((cell) => {
           cell.textContent = addYear(cell.textContent);
         });
+      });
+
+      const compactHiddenHourStart = 4;
+      const compactHiddenHourEnd = 6;
+      const keepCompactCellPart = (cell, span, startsAfterBreak = false) => {
+        cell.colSpan = span;
+        if (startsAfterBreak) {
+          cell.classList.add('cahier-pdf-after-break');
+          cell.style.setProperty('border-left', '4px solid #000', 'important');
+        }
+      };
+      const transformCompactRow = (row) => {
+        let logicalHourIndex = 0;
+
+        Array.from(row.cells).slice(1).forEach((cell) => {
+          const originalSpan = Math.max(Number(cell.colSpan) || 1, 1);
+          const cellEnd = logicalHourIndex + originalSpan;
+          const beforeBreakSpan = Math.max(
+            0,
+            Math.min(cellEnd, compactHiddenHourStart) - logicalHourIndex,
+          );
+          const afterBreakSpan = Math.max(
+            0,
+            cellEnd - Math.max(logicalHourIndex, compactHiddenHourEnd),
+          );
+
+          if (beforeBreakSpan > 0 && afterBreakSpan > 0) {
+            const afterBreakCell = cell.cloneNode(true);
+            keepCompactCellPart(cell, beforeBreakSpan);
+            keepCompactCellPart(afterBreakCell, afterBreakSpan, true);
+            cell.after(afterBreakCell);
+          } else if (beforeBreakSpan > 0) {
+            keepCompactCellPart(cell, beforeBreakSpan);
+          } else if (afterBreakSpan > 0) {
+            keepCompactCellPart(
+              cell,
+              afterBreakSpan,
+              logicalHourIndex <= compactHiddenHourEnd,
+            );
+          } else {
+            cell.remove();
+          }
+
+          logicalHourIndex = cellEnd;
+        });
+      };
+
+      document.querySelectorAll('.timetable-table.compact-pdf-hours').forEach((table) => {
+        const headerRow = table.tHead?.rows?.[0];
+        const logicalHeaderWidth = Array.from(headerRow?.cells || [])
+          .slice(1)
+          .reduce((total, cell) => total + Math.max(Number(cell.colSpan) || 1, 1), 0);
+
+        if (logicalHeaderWidth > 8) {
+          table.querySelectorAll('thead tr, tbody tr').forEach(transformCompactRow);
+        }
+
+        table.querySelectorAll('.cahier-pdf-after-break').forEach((cell) => {
+          cell.style.setProperty('border-left', '4px solid #000', 'important');
+        });
+        table.style.setProperty('width', '96%', 'important');
+        table.style.setProperty('margin-left', 'auto', 'important');
+        table.style.setProperty('margin-right', 'auto', 'important');
+        table.style.setProperty('table-layout', 'fixed', 'important');
+        table.dataset.cahierPdfCompactNormalized = 'true';
+        table.classList.remove('compact-pdf-hours');
       });
 
       if (document.fonts?.ready) await document.fonts.ready.catch(() => {});

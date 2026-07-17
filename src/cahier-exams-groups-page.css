@@ -1,8 +1,8 @@
 .cahier-exams-groups-page {
   position: relative !important;
-  padding: 42px 46px 34px !important;
+  padding: 92px 46px 34px !important;
   overflow: hidden !important;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 48%, #eff6ff 100%) !important;
 }
 
 .cahier-exams-groups-main-title {
@@ -19,25 +19,23 @@
 }
 
 .cahier-exams-groups-page .cahier-exams-list {
-  margin-top: 0 !important;
+  margin-top: 85px !important;
   margin-bottom: 22px !important;
-  border-radius: 20px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
   transform: none !important;
 }
 
-.cahier-exams-groups-page .cahier-exams-list div[style] {
-  font-size: 21px !important;
-  padding: 12px 16px !important;
-}
-
 .cahier-exams-groups-page .cahier-exams-list th {
-  font-size: 16px !important;
-  padding: 10px 12px !important;
+  font-size: 14px !important;
+  padding: 12px 10px !important;
 }
 
 .cahier-exams-groups-page .cahier-exams-list td {
-  font-size: 15px !important;
-  padding: 9px 12px !important;
+  font-size: 14px !important;
+  padding: 14px 11px !important;
   line-height: 1.25 !important;
 }
 

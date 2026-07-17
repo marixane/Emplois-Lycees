@@ -1,19 +1,18 @@
 const HOLIDAYS = [
-  { name: 'Vacances intermédiaires 1', date: '18/10/2026 - 25/10/2026', days: '8 jours', type: 'Scolaire' },
+  { name: 'Vacances intermédiaires 1', date: '18-25/10/2026', days: '8 jours', type: 'Scolaire' },
   { name: 'Fête de l’Unité', date: '31/10/2026', days: '1 jour', type: 'Nationale' },
   { name: 'Marche Verte', date: '06/11/2026', days: '1 jour', type: 'Nationale' },
   { name: 'Fête de l’Indépendance', date: '18/11/2026', days: '1 jour', type: 'Nationale' },
-  { name: 'Vacances intermédiaires 2', date: '06/12/2026 - 13/12/2026', days: '8 jours', type: 'Scolaire' },
+  { name: 'Vacances intermédiaires 2', date: '06-13/12/2026', days: '8 jours', type: 'Scolaire' },
   { name: 'Nouvel An', date: '01/01/2027', days: '1 jour', type: 'Nationale' },
   { name: 'Manifeste de l’Indépendance', date: '11/01/2027', days: '1 jour', type: 'Nationale' },
   { name: 'Nouvel An Amazigh', date: '14/01/2027', days: '1 jour', type: 'Nationale' },
-  { name: 'Vacances de mi-année', date: '24/01/2027 - 31/01/2027', days: '8 jours', type: 'Scolaire' },
-  { name: 'Vacances intermédiaires 3', date: '15/03/2027 - 22/03/2027', days: '8 jours', type: 'Scolaire' },
-  { name: 'Aïd Al-Fitr', date: '20/03/2027 - 22/03/2027', days: '3 jours', type: 'Religieuse' },
+  { name: 'Vacances de mi-année', date: '24-31/01/2027', days: '8 jours', type: 'Scolaire' },
+  { name: 'Aïd Al-Fitr', date: '29 Ramadan - 2 Chawwal 1448', days: '3 à 4 jours', type: 'Religieuse' },
   { name: 'Fête du Travail', date: '01/05/2027', days: '1 jour', type: 'Nationale' },
-  { name: 'Vacances intermédiaires 4', date: '09/05/2027 - 16/05/2027', days: '8 jours', type: 'Scolaire' },
-  { name: 'Aïd Al-Adha', date: '27/05/2027 - 30/05/2027', days: '4 jours', type: 'Religieuse' },
-  { name: '1er Moharram', date: '16/06/2027', days: '1 jour', type: 'Religieuse' }
+  { name: 'Vacances intermédiaires 4', date: '09-16/05/2027', days: '8 jours', type: 'Scolaire' },
+  { name: 'Aïd Al-Adha', date: '09-11 Dhou Al-Hijja 1448', days: '3 jours', type: 'Religieuse' },
+  { name: '1er Moharram', date: '01 Moharram 1449', days: '1 jour', type: 'Religieuse' }
 ];
 
 const pageStyle = {
@@ -109,7 +108,7 @@ const noteStyle = {
 const typeColor = (type) => type === 'Scolaire' ? '#bfdbfe' : type === 'Nationale' ? '#bbf7d0' : '#fed7aa';
 
 export default function MoroccoHolidaysPage() {
-  return <div className="a4-page cahier-page holidays-page" style={pageStyle}>
+  return <div id="cahier-holidays-page" className="a4-page cahier-page holidays-page" style={pageStyle}>
     <header style={headerStyle}>
       <h1 style={titleStyle}>Vacances scolaires</h1>
       <p style={subtitleStyle}>Éducation nationale marocaine · Année scolaire 2026 / 2027</p>
@@ -124,6 +123,6 @@ export default function MoroccoHolidaysPage() {
         <td style={{ ...cellStyle, borderRight: '1px solid rgba(17,17,17,0.08)', borderRadius: '0 12px 12px 0' }}><span style={{ ...badgeStyle, background: typeColor(holiday.type) }}>{holiday.type}</span></td>
       </tr>)}</tbody>
     </table>
-    <div style={noteStyle}>Toutes les dates sont affichées dans l’ordre chronologique de l’année scolaire, du 01/09/2026 au 10/07/2027.</div>
+    <div style={noteStyle}>Les fêtes religieuses sont gardées selon les dates hijri indiquées dans le PDF officiel.</div>
   </div>;
 }

@@ -32,6 +32,23 @@ const getTimetableDurations = () => {
 const getEntryDay = (entry) => clean((entry.querySelector('.homework-date')?.textContent || '').split(' ')[0]);
 
 const fitNonHourLabel = (node) => {
+  const isEventLabel = Boolean(node.closest('.cahier-extra-holiday-entry, .cahier-exam-entry'));
+  if (isEventLabel) {
+    node.style.removeProperty('transform');
+    node.style.removeProperty('transform-origin');
+    node.style.setProperty('white-space', 'nowrap', 'important');
+    node.style.setProperty('overflow', 'hidden', 'important');
+
+    let size = 18;
+    node.style.setProperty('font-size', `${size}px`, 'important');
+    const availableWidth = Math.max(node.clientWidth, 0);
+    while (size > 20 && availableWidth > 0 && node.scrollWidth > availableWidth) {
+      size -= 1;
+      node.style.setProperty('font-size', `${size}px`, 'important');
+    }
+    return;
+  }
+
   node.style.removeProperty('font-size');
   node.style.setProperty('font-size', '12px', 'important');
 

@@ -59,10 +59,7 @@ const addVercelResponseHelpers = (res) => {
   return res;
 };
 
-const vite = await createViteServer({
-  server: { middlewareMode: true },
-  appType: 'spa'
-});
+let vite;
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -97,6 +94,15 @@ const server = http.createServer(async (req, res) => {
     if (!res.headersSent) res.statusCode = 500;
     res.end('Erreur du serveur local');
   }
+});
+
+vite = await createViteServer({
+  optimizeDeps: { force: true },
+  server: {
+    middlewareMode: { server },
+    ws: { server }
+  },
+  appType: 'spa'
 });
 
 server.listen(PORT, '0.0.0.0', () => {

@@ -2,7 +2,7 @@
 .homework-subject:has(> div:nth-child(3)) > div,
 .homework-subject:has(> div:nth-child(4)) > div,
 .cahier-preview-zone .homework-subject > div {
-  grid-template-columns: var(--cahier-hour-width, 66px) minmax(0, 1fr) 16px !important;
+  grid-template-columns: var(--cahier-hour-width, 66px) minmax(0, 1fr) 18px !important;
 }
 
 .homework-subject:has(> div:nth-child(3)) > div,
@@ -27,10 +27,14 @@
 
 .cahier-session-duration,
 .cahier-preview-zone .cahier-session-duration {
-  left: 3px !important;
-  width: 16px !important;
+  left: 0 !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
   justify-self: end !important;
-  padding-left: 1px !important;
+  padding-left: 2px !important;
   padding-right: 0 !important;
   text-align: right !important;
+  background: transparent !important;
+  transform: none !important;
 }

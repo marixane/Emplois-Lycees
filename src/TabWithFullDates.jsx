@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react';
+import { memo, useLayoutEffect } from 'react';
 import Tab from './Tab.jsx';
 
 const SCHOOL_START_YEAR = 2026;
@@ -120,13 +120,21 @@ const fixEntries = (root = document) => {
     if (blockingEvent && !isSameDate(firstDate, parseDate(blockingEvent.start)) && !isEventEntry(entry)) entry.remove();
   });
 
-  const allEntries = [...document.querySelectorAll('.homework-entry')];
-  const eventKeys = new Set();
-  allEntries.forEach((entry) => {
-    const key = entry.dataset.canonicalEvent;
-    if (!key) return;
-    if (eventKeys.has(key)) entry.remove();
-    else eventKeys.add(key);
+  const groupCovers = [...root.querySelectorAll?.('.homework-cover-page') || []];
+  groupCovers.forEach((cover) => {
+    const eventKeys = new Set();
+    let page = cover.nextElementSibling;
+
+    while (page && !page.classList.contains('homework-cover-page')) {
+      if (page.classList.contains('homework-page')) {
+        page.querySelectorAll('.homework-entry[data-canonical-event]').forEach((entry) => {
+          const key = entry.dataset.canonicalEvent;
+          if (eventKeys.has(key)) entry.remove();
+          else eventKeys.add(key);
+        });
+      }
+      page = page.nextElementSibling;
+    }
   });
 
   const eventStartDates = new Set(CANONICAL_EVENTS.map((event) => event.start));
@@ -162,7 +170,7 @@ const updateDisplayedDates = (root = document) => {
   });
 };
 
-export default function TabWithFullDates() {
+function TabWithFullDates({ onClassGroupsChange }) {
   useLayoutEffect(() => {
     updateDisplayedDates();
   });
@@ -174,6 +182,8 @@ export default function TabWithFullDates() {
         padding-bottom: 8px !important;
       }
     `}</style>
-    <Tab />
+    <Tab onClassGroupsChange={onClassGroupsChange} />
   </>;
 }
+
+export default memo(TabWithFullDates);

@@ -25,7 +25,7 @@
 .cahier-page > .timetable-table thead textarea {
   color: #111827 !important;
   font-weight: 900 !important;
-  text-align: center !important;
+  text-align: left !important;
   line-height: 1.08 !important;
 }
 
@@ -190,4 +190,83 @@
 .cahier-page > .cahier-exams-list td:nth-child(3) {
   color: #374151 !important;
   font-weight: 900 !important;
+}
+
+/* La page finale des examens reprend la présentation aérée du tableau des vacances. */
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list {
+  margin-top: 85px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: separate !important;
+  border-spacing: 0 10px !important;
+  background: transparent !important;
+}
+
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list tr {
+  display: table-row !important;
+}
+
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list th,
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list td {
+  display: table-cell !important;
+  order: initial !important;
+}
+
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list th {
+  padding: 12px 10px !important;
+  border: 0 !important;
+  background: #111827 !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.4px !important;
+  text-align: left !important;
+  text-transform: uppercase !important;
+}
+
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list th::after {
+  content: none !important;
+  display: none !important;
+}
+
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list th:first-child {
+  border-radius: 12px 0 0 12px !important;
+}
+
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list th:last-child {
+  border-radius: 0 12px 12px 0 !important;
+}
+
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list tbody td,
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list tbody tr:nth-child(even) td {
+  padding: 14px 11px !important;
+  border-top: 1px solid rgba(17, 17, 17, 0.08) !important;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.08) !important;
+  background: #ffffff !important;
+  color: #111827 !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  text-align: left !important;
+}
+
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list tbody td:first-child {
+  border-left: 1px solid rgba(17, 17, 17, 0.08) !important;
+  border-radius: 12px 0 0 12px !important;
+  font-weight: 900 !important;
+}
+
+.cahier-exams-groups-page.cahier-page > .cahier-exams-list tbody td:last-child {
+  border-right: 1px solid rgba(17, 17, 17, 0.08) !important;
+  border-radius: 0 12px 12px 0 !important;
+  font-weight: 900 !important;
+  text-align: left !important;
 }

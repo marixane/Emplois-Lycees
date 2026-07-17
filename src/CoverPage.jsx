@@ -1,4 +1,72 @@
-export default function CoverPage() {
+const balanceClassLines = (entries, lineCount) => {
+  if (!entries.length) return Array(lineCount).fill('');
+  if (entries.length <= lineCount) {
+    return [...entries.map((entry) => entry.className), ...Array(lineCount - entries.length).fill('')];
+  }
+
+  let bestLines = [];
+  let bestScore = Number.POSITIVE_INFINITY;
+
+  const evaluateCuts = (cuts) => {
+    const bounds = [0, ...cuts, entries.length];
+    const lines = bounds.slice(0, -1).map((start, index) => entries
+      .slice(start, bounds[index + 1])
+      .map((entry) => entry.className)
+      .join(' - '));
+    const lengths = lines.map((line) => line.length);
+    const splitPenalty = cuts.reduce((penalty, cut) => (
+      entries[cut - 1]?.groupIndex === entries[cut]?.groupIndex ? penalty + 8 : penalty
+    ), 0);
+    const score = Math.max(...lengths) + splitPenalty + ((Math.max(...lengths) - Math.min(...lengths)) * 0.04);
+
+    if (score < bestScore) {
+      bestScore = score;
+      bestLines = lines;
+    }
+  };
+
+  const findCuts = (cuts, start) => {
+    if (cuts.length === lineCount - 1) {
+      evaluateCuts(cuts);
+      return;
+    }
+
+    const cutsStillNeeded = lineCount - 1 - cuts.length;
+    for (let cut = start + 1; cut <= entries.length - cutsStillNeeded; cut += 1) {
+      findCuts([...cuts, cut], cut);
+    }
+  };
+
+  findCuts([], 0);
+  return bestLines;
+};
+
+const getCoverClassLayout = (classGroups) => {
+  const entries = (classGroups ?? []).flatMap((group, groupIndex) => {
+    const classes = [...new Set((group.classes ?? []).map((className) => String(className).trim()).filter(Boolean))];
+    return classes.map((className) => ({ className, groupIndex }));
+  });
+  const twoLines = balanceClassLines(entries, 2);
+  const needsThirdLine = entries.length >= 3 && (
+    entries.length > 6 || Math.max(...twoLines.map((line) => line.length)) > 36
+  );
+
+  return {
+    lines: needsThirdLine ? balanceClassLines(entries, 3) : twoLines,
+    needsThirdLine
+  };
+};
+
+const getClassLineStyle = (fontSize) => ({
+  ...styles.classEditable,
+  fontSize: `${fontSize}px`
+});
+
+export default function CoverPage({ classGroups = [] }) {
+  const { lines: classLines, needsThirdLine } = getCoverClassLayout(classGroups);
+  const longestClassLine = Math.max(...classLines.map((line) => line.length), 1);
+  const classFontSize = Math.max(10, Math.min(24, Math.floor(570 / longestClassLine)));
+
   return (
     <main className="cahier-shell clean-cahier-shell">
       <section className="cahier-preview-zone">
@@ -63,23 +131,43 @@ export default function CoverPage() {
                 style={styles.fieldEditable}
               />
             </div>
+            <div style={styles.infoRow}>
+              <strong>Matière :</strong>
+              <div
+                contentEditable
+                suppressContentEditableWarning
+                role="textbox"
+                aria-label="Matière"
+                style={styles.fieldEditable}
+              />
+            </div>
             <div style={styles.classInfoRow}>
               <strong>Classes :</strong>
               <div style={styles.classLines}>
                 <div
+                  key={`cover-classes-1-${classLines[0]}`}
                   contentEditable
                   suppressContentEditableWarning
                   role="textbox"
                   aria-label="Classes ligne 1"
-                  style={styles.classEditable}
-                />
+                  style={getClassLineStyle(classFontSize)}
+                >{classLines[0]}</div>
                 <div
+                  key={`cover-classes-2-${classLines[1]}`}
                   contentEditable
                   suppressContentEditableWarning
                   role="textbox"
                   aria-label="Classes ligne 2"
-                  style={styles.classEditable}
-                />
+                  style={getClassLineStyle(classFontSize)}
+                >{classLines[1]}</div>
+                {needsThirdLine && <div
+                  key={`cover-classes-3-${classLines[2]}`}
+                  contentEditable
+                  suppressContentEditableWarning
+                  role="textbox"
+                  aria-label="Classes ligne 3"
+                  style={getClassLineStyle(classFontSize)}
+                >{classLines[2]}</div>}
               </div>
             </div>
           </section>
@@ -169,11 +257,11 @@ const styles = {
   infoBox: {
     position: 'relative',
     zIndex: 3,
-    width: '72%',
-    margin: '115px auto 0',
+    width: '78%',
+    margin: '40px auto 0',
     display: 'grid',
-    gap: '26px',
-    padding: '28px 34px',
+    gap: '28px',
+    padding: '32px 38px',
     border: '2px solid rgba(75, 20, 95, 0.28)',
     borderRadius: '18px',
     background: 'rgba(255,255,255,0.9)',
@@ -181,18 +269,19 @@ const styles = {
   },
   infoRow: {
     display: 'grid',
-    gridTemplateColumns: '150px 1fr',
+    gridTemplateColumns: '160px minmax(0, 1fr)',
     alignItems: 'end',
     fontSize: '20px'
   },
   classInfoRow: {
     display: 'grid',
-    gridTemplateColumns: '150px 1fr',
+    gridTemplateColumns: '160px minmax(0, 1fr)',
     alignItems: 'start',
     fontSize: '20px'
   },
   classLines: {
     display: 'grid',
+    minWidth: 0,
     gap: '10px',
     position: 'relative',
     zIndex: 4,
@@ -201,14 +290,18 @@ const styles = {
   fieldEditable: {
     display: 'block',
     width: '100%',
+    minWidth: 0,
     minHeight: '26px',
     padding: '0 2px',
     boxSizing: 'border-box',
     borderBottom: '2px dotted #444',
     outline: 'none',
     background: 'transparent',
-    color: '#1f1f1f',
-    font: 'inherit',
+    color: '#4b145f',
+    fontFamily: 'Arial, sans-serif',
+    fontSize: '22px',
+    fontWeight: 900,
+    lineHeight: 1.1,
     cursor: 'text',
     pointerEvents: 'auto',
     userSelect: 'text'
@@ -216,14 +309,19 @@ const styles = {
   classEditable: {
     display: 'block',
     width: '100%',
-    minHeight: '26px',
+    minWidth: 0,
+    minHeight: '30px',
     padding: '0 2px',
     boxSizing: 'border-box',
     borderBottom: '2px dotted #444',
     outline: 'none',
     background: 'transparent',
-    color: '#1f1f1f',
-    font: 'inherit',
+    color: '#4b145f',
+    fontFamily: 'Arial, sans-serif',
+    fontSize: '24px',
+    fontWeight: 900,
+    lineHeight: 1.1,
+    whiteSpace: 'nowrap',
     cursor: 'text',
     pointerEvents: 'auto',
     userSelect: 'text'

@@ -1,11 +1,9 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import CoverPage from './CoverPage.jsx';
 import TabWithFullDates from './TabWithFullDates.jsx';
 import { scheduleFullDates } from './force-full-cahier-dates.js';
 
 const removeOldFirstPages = () => {
-  document.querySelectorAll('.holidays-page').forEach((page) => page.remove());
-
   document.querySelectorAll('.a4-page').forEach((page) => {
     const text = String(page.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
     const isOldCover = text.includes('mon cahier') || text.includes("classes remplies dans l'emploi du temps");
@@ -23,24 +21,25 @@ const moveTimetableExtras = () => {
   const totalHours = timetablePage.querySelector('.total-hours-control');
   if (totalHours) {
     totalHours.classList.add('total-hours-under-timetable');
-    timetable.insertAdjacentElement('afterend', totalHours);
+    if (timetable.nextElementSibling !== totalHours) timetable.insertAdjacentElement('afterend', totalHours);
   }
 
-  const groupsContainer = [...document.querySelectorAll('.a4-page.cahier-page div')].find((element) => {
-    const children = [...element.children];
-    if (children.length !== 3) return false;
+  const groupsContainer = [...timetablePage.children].find((element) => element.dataset.cahierClassGroups === 'true')
+    || [...timetablePage.children].find((element) => {
+      const children = [...element.children];
+      if (children.length !== 3) return false;
 
-    const titles = children.map((child) => String(child.textContent || '').replace(/\s+/g, ' ').trim().toUpperCase());
-    return titles[0].startsWith('TRONC COMMUN')
-      && titles[1].startsWith('1ÈRES BAC')
-      && titles[2].startsWith('2ÈME BAC');
-  });
+      const titles = children.map((child) => String(child.textContent || '').replace(/\s+/g, ' ').trim().toUpperCase());
+      return titles[0].startsWith('TRONC COMMUN')
+        && titles[1].startsWith('1ÈRES BAC')
+        && titles[2].startsWith('2ÈME BAC');
+    });
 
   if (!groupsContainer) return;
 
   groupsContainer.classList.add('groups-under-timetable');
-  if (totalHours) totalHours.insertAdjacentElement('afterend', groupsContainer);
-  else timetable.insertAdjacentElement('afterend', groupsContainer);
+  if (totalHours && totalHours.nextElementSibling !== groupsContainer) totalHours.insertAdjacentElement('afterend', groupsContainer);
+  else if (!totalHours && timetable.nextElementSibling !== groupsContainer) timetable.insertAdjacentElement('afterend', groupsContainer);
 };
 
 const refreshLayout = () => {
@@ -49,6 +48,8 @@ const refreshLayout = () => {
 };
 
 export default function App() {
+  const [coverClassGroups, setCoverClassGroups] = useState([]);
+
   useEffect(() => {
     document.body.classList.add('cahier-tab-active');
     document.body.classList.remove('devoir-tab-active');
@@ -74,19 +75,33 @@ export default function App() {
   }, []);
 
   useLayoutEffect(() => {
-    scheduleFullDates();
+    const cleanupFullDates = scheduleFullDates();
     refreshLayout();
-  });
+
+    return cleanupFullDates;
+  }, []);
 
   return <>
     <style>{`
-      .timetable-page-shifted > * {
+      .timetable-page-shifted > .cahier-header {
         position: relative;
         top: 30px;
       }
 
+      .timetable-page-shifted > .timetable-table,
+      .timetable-page-shifted > .cahier-footer {
+        position: relative;
+        top: 90px;
+      }
+
+      .timetable-page-shifted > .groups-under-timetable {
+        position: relative;
+        top: 70px;
+      }
+
       .total-hours-under-timetable {
-        position: static !important;
+        position: relative !important;
+        top: 60px !important;
         transform: none !important;
         width: fit-content !important;
         margin: 36px 66px 0 auto !important;
@@ -112,8 +127,128 @@ export default function App() {
       .groups-under-timetable > div {
         min-height: 190px !important;
       }
+
+      .groups-under-timetable [aria-label^="Classes du groupe"] {
+        display: grid !important;
+        grid-template-columns: none !important;
+        grid-template-rows: repeat(4, minmax(0, 1fr)) !important;
+        grid-auto-flow: column !important;
+        grid-auto-columns: minmax(0, 1fr) !important;
+        align-content: stretch !important;
+        align-items: stretch !important;
+        gap: 5px !important;
+        height: 150px !important;
+        min-height: 150px !important;
+        max-height: 150px !important;
+        overflow: hidden !important;
+      }
+
+      .groups-under-timetable .cahier-class-group-chip {
+        min-height: 32px !important;
+        padding: 7px 9px !important;
+        font-size: 18px !important;
+        line-height: 1.1 !important;
+      }
+
+      .timetable-table .timetable-cell-content.colored-cell .timetable-class-input {
+        display: block !important;
+        justify-self: stretch !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        height: 26px !important;
+        min-height: 26px !important;
+        max-height: 26px !important;
+        margin: 0 !important;
+        padding: 0 2px !important;
+        font-size: var(--timetable-class-font-size, 15px) !important;
+        font-weight: 900 !important;
+        line-height: 26px !important;
+        text-align: center !important;
+        text-indent: 0 !important;
+        direction: ltr !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        resize: none !important;
+      }
+
+      .timetable-table .timetable-cell-content.colored-cell {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+
+      body.cahier-tab-active .timetable-table .timetable-cell-content.colored-cell .span-tools {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        justify-self: stretch !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 1px !important;
+        gap: 2px !important;
+        transform: none !important;
+      }
+
+      body.cahier-tab-active .timetable-table .timetable-cell-content.colored-cell .span-tools button {
+        flex: 0 1 16px !important;
+        width: 16px !important;
+        min-width: 0 !important;
+        max-width: 16px !important;
+        padding: 0 !important;
+        font-size: 10px !important;
+      }
+
+      body.cahier-tab-active .timetable-table .timetable-cell-content.colored-cell .room-control {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        justify-self: stretch !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 2px 0 !important;
+        gap: 4px !important;
+        transform: none !important;
+      }
+
+      body.cahier-tab-active .timetable-table .timetable-cell-content.colored-cell .room-control input {
+        flex: 0 0 24px !important;
+        width: 24px !important;
+        min-width: 24px !important;
+        max-width: 24px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: center !important;
+      }
+
+      .homework-date[data-assignment-week-label] {
+        position: relative;
+        white-space: nowrap !important;
+      }
+
+      .homework-date[data-assignment-week-label]::after {
+        content: attr(data-assignment-week-label);
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        color: inherit;
+        font-family: inherit;
+        font-size: var(--last-assignment-label-size, 1em);
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        text-transform: none;
+        white-space: nowrap;
+      }
+
+      .homework-cover-page .cahier-group-cover-class-chip {
+        min-height: 50px !important;
+        padding: 10px 14px !important;
+        font-size: clamp(20px, 2.8vw, 24px) !important;
+        line-height: 1.05 !important;
+      }
     `}</style>
-    <CoverPage />
-    <TabWithFullDates />
+    <CoverPage classGroups={coverClassGroups} />
+    <TabWithFullDates onClassGroupsChange={setCoverClassGroups} />
   </>;
 }

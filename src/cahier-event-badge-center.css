@@ -15,6 +15,7 @@
 
 .cahier-extra-holiday-entry .homework-subject,
 .cahier-exam-entry .homework-subject {
+  position: relative !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -40,29 +41,177 @@
 
 .cahier-extra-holiday-entry .homework-subject > div,
 .cahier-exam-entry .homework-subject > div {
+  position: absolute !important;
+  inset: 50% auto auto 50% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 100% !important;
-  height: 100% !important;
+  width: calc(100% - 24px) !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
   margin: 0 !important;
+  padding: 0 !important;
+  transform: translate(-50%, -50%) !important;
   grid-template-columns: none !important;
+  border-radius: 10px !important;
 }
 
 .cahier-extra-holiday-entry .homework-subject > div > span:first-child,
 .cahier-exam-entry .homework-subject > div > span:first-child {
+  position: static !important;
+  inset: auto !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  flex: 0 0 auto !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  min-width: 112px !important;
-  padding: 9px 18px !important;
-  font-size: 20px !important;
+  min-width: 128px !important;
+  max-width: calc(100% - 16px) !important;
+  min-height: 38px !important;
+  box-sizing: border-box !important;
+  padding: 9px 20px !important;
+  font-size: 18px !important;
   font-weight: 900 !important;
   line-height: 1.1 !important;
-  margin: 0 auto !important;
+  margin: 0 !important;
+}
+
+.cahier-extra-holiday-entry .homework-subject > div > span:not(:first-child),
+.cahier-exam-entry .homework-subject > div > span:not(:first-child) {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.cahier-tab-active .homework-page .cahier-extra-holiday-entry .homework-text,
+body.cahier-tab-active .homework-page .cahier-exam-entry .homework-text {
+  box-sizing: border-box !important;
+  align-self: center !important;
+  width: calc(100% - 56px) !important;
+  height: 88px !important;
+  min-height: 88px !important;
+  max-height: 88px !important;
+  margin: auto 28px !important;
+  border-radius: 12px !important;
 }
 
 .cahier-extra-holiday-entry .homework-subject > div > span:last-child:empty,
 .cahier-exam-entry .homework-subject > div > span:last-child:empty {
   display: none !important;
+}
+
+body.cahier-tab-active .homework-page .homework-entry:not(.cahier-exam-entry):not(.cahier-extra-holiday-entry) .homework-text[style*="pre-wrap"] {
+  padding-top: 18px !important;
+}
+
+body.cahier-tab-active .homework-page .homework-entry.cahier-midyear-holiday-entry {
+  height: calc(var(--cahier-entry-height) * 2) !important;
+  min-height: calc(var(--cahier-entry-height) * 2) !important;
+  max-height: calc(var(--cahier-entry-height) * 2) !important;
+  grid-template-rows: 70px 1fr !important;
+  border-left: 8px solid #16a34a !important;
+  background: linear-gradient(145deg, #ecfdf5 0%, #f0fdf4 45%, #dcfce7 100%) !important;
+}
+
+body.cahier-tab-active .homework-page .homework-entry.cahier-midyear-holiday-entry .homework-date {
+  height: 70px !important;
+  min-height: 70px !important;
+  max-height: 70px !important;
+  padding-left: 30px !important;
+  color: #ffffff !important;
+  background: linear-gradient(90deg, #15803d, #22c55e) !important;
+  border-bottom: 0 !important;
+  text-shadow: 0 2px 3px rgba(20, 83, 45, 0.32) !important;
+}
+
+body.cahier-tab-active .homework-page .homework-entry.cahier-midyear-holiday-entry .cahier-midyear-holiday-content {
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: 34% 66% !important;
+  gap: 20px !important;
+  width: 100% !important;
+  height: 302px !important;
+  min-height: 302px !important;
+  max-height: 302px !important;
+  padding: 22px 26px !important;
+  overflow: hidden !important;
+  border-bottom: 1px solid rgba(22, 163, 74, 0.20) !important;
+  background:
+    radial-gradient(circle at 90% 15%, rgba(187, 247, 208, 0.65), transparent 34%),
+    linear-gradient(135deg, #f0fdf4, #ecfdf5) !important;
+}
+
+.cahier-midyear-school-panel,
+.cahier-midyear-message {
+  box-sizing: border-box;
+  min-width: 0;
+  border-radius: 22px;
+  border: 2px solid rgba(22, 163, 74, 0.22);
+  box-shadow: 0 9px 22px rgba(21, 128, 61, 0.12);
+}
+
+.cahier-midyear-school-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.cahier-midyear-icons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.cahier-midyear-school-label {
+  padding: 9px 22px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  font: 900 18px Arial, sans-serif;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.cahier-midyear-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  padding: 24px;
+  text-align: center;
+  color: #14532d;
+  background: linear-gradient(145deg, rgba(220, 252, 231, 0.92), rgba(255, 255, 255, 0.92));
+  outline: none;
+}
+
+.cahier-midyear-message > span {
+  color: #16a34a;
+  font: 900 18px Arial, sans-serif;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.cahier-midyear-message > strong {
+  color: #14532d;
+  font: 900 34px Arial, sans-serif;
+  line-height: 1.08;
+}
+
+.cahier-midyear-message > small {
+  color: #15803d;
+  font: 800 15px Arial, sans-serif;
+  letter-spacing: 0.7px;
 }

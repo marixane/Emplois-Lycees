@@ -93,20 +93,19 @@ import './cahier-hide-extra-school-year.css';
 import './cahier-group-box-polish.css';
 import './cahier-fixed-five-entries.css';
 import './cahier-session-fit.css';
-import './cahier-session-duration.js';
-import './cahier-class-label-large.js';
 import './cahier-duration-right.css';
 import './cahier-first-page-clean.css';
 import './cahier-table-exams-polish.css';
 import './cahier-auto-fit-many-classes.css';
 import './cahier-main-cover-page.css';
-import './cahier-main-cover-page.js';
+// Désactivé : ancienne couverture remplacée par CoverPage.jsx.
+// import './cahier-main-cover-page.js';
 // Désactivé : ce helper réordonne les pages à chaque saisie et peut bloquer Safari.
 // import './cahier-lycee-events-inline.js';
 import './cahier-single-autres-group.css';
 import './cahier-rename-cover-autres-safe.js';
 import './cahier-exams-groups-page.css';
-import './cahier-exams-groups-page.js';
+// La page des examens est désormais le dernier enfant React dans Tab.jsx.
 import './cahier-event-badge-center.css';
 // Désactivé : ce guard DOM peut bloquer Safari pendant la saisie.
 // import './cahier-hide-holiday-session-duplicates.js';
@@ -115,6 +114,7 @@ import './cahier-event-badge-center.css';
 import './cahier-exams-last-in-pdf.js';
 // Les deux boutons PDF utilisent la même fonction de génération.
 import './cahier-pdf-button-safari-safe.js';
+import './cahier-generate-pages-button.css';
 import './cahier-pdf-class-size-fix.js';
 import './cahier-first-saturday-visibility.js';
 import './cahier-pdf-compact-timetable.css';

@@ -1,0 +1,92 @@
+.cahier-generate-pages-button {
+  position: fixed !important;
+  left: 8px !important;
+  right: auto !important;
+  bottom: 18px !important;
+  z-index: 2147483647 !important;
+  box-sizing: border-box !important;
+  width: 334px !important;
+  max-width: calc(100vw - 24px) !important;
+  height: 50px !important;
+  border: 1px solid #1d4ed8 !important;
+  border-bottom: 2px solid #1e3a8a !important;
+  border-radius: 10px !important;
+  padding: 7px 12px !important;
+  background: linear-gradient(180deg, #60a5fa 0%, #2563eb 52%, #1d4ed8 100%) !important;
+  color: #fff !important;
+  font: 900 21px Arial, sans-serif !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.38) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 4px 0 #1e3a8a, 0 7px 13px rgba(0,0,0,.3) !important;
+  transform: translateY(-2px) !important;
+  cursor: pointer !important;
+}
+
+.cahier-generate-pages-button:hover {
+  transform: translateY(0) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 0 #1e3a8a, 0 5px 10px rgba(0,0,0,.28) !important;
+}
+
+.cahier-generate-pages-button:active {
+  transform: translateY(3px) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 1px 0 #1e3a8a, 0 2px 5px rgba(0,0,0,.24) !important;
+}
+
+@media print {
+  .cahier-generate-pages-button { display: none !important; }
+}
+
+/* Taille fixe des classes générées : aucun recalcul différé au clic. */
+body.cahier-tab-active .homework-page
+  .homework-entry:not(.cahier-exam-entry):not(.cahier-extra-holiday-entry)
+  .homework-subject > div > span:nth-child(2) {
+  display: block !important;
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+  user-select: none !important;
+}
+
+body.cahier-tab-active .homework-page .homework-subject > div,
+body.cahier-tab-active .homework-page .homework-subject > div * {
+  transition: none !important;
+  animation: none !important;
+}
+
+.cahier-class-group-chip {
+  position: relative !important;
+  padding-right: 38px !important;
+}
+
+.cahier-class-group-name {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cahier-class-color-picker {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  width: 25px;
+  height: 25px;
+  padding: 1px;
+  border: 2px solid rgba(17, 24, 39, 0.32);
+  border-radius: 7px;
+  background: white;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+body.cahier-tab-active .homework-page .cahier-session-duration {
+  background: transparent !important;
+}

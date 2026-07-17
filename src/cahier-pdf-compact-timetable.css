@@ -17,6 +17,12 @@
   height: 16px;
 }
 
+/* La même option agit immédiatement sur le tableau web. */
+.timetable-table.compact-pdf-hours col.cahier-noon-col {
+  visibility: collapse !important;
+  width: 0 !important;
+}
+
 @media print {
   .timetable-table.compact-pdf-hours {
     width: 96% !important;
@@ -25,15 +31,7 @@
     table-layout: fixed !important;
   }
 
-  .timetable-table.compact-pdf-hours thead th:nth-child(6),
-  .timetable-table.compact-pdf-hours thead th:nth-child(7),
-  .timetable-table.compact-pdf-hours tbody tr > td:nth-child(6),
-  .timetable-table.compact-pdf-hours tbody tr > td:nth-child(7) {
-    display: none !important;
-  }
-
-  .timetable-table.compact-pdf-hours thead th:nth-child(8),
-  .timetable-table.compact-pdf-hours tbody tr > td:nth-child(8) {
+  .timetable-table .cahier-pdf-after-break {
     border-left: 4px solid #000 !important;
   }
 }

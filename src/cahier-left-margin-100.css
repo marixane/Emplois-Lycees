@@ -10,6 +10,15 @@ body.cahier-tab-active .holidays-page {
   padding-left: 100px !important;
 }
 
+body.cahier-tab-active .cahier-page.cahier-exams-groups-page {
+  padding-left: 125px !important;
+  padding-right: 21px !important;
+}
+
+body.cahier-tab-active .cahier-page.holidays-page {
+  padding-top: 56px !important;
+}
+
 body.cahier-tab-active .homework-page > div:first-child {
   left: 100px !important;
 }
@@ -25,6 +34,15 @@ body.cahier-tab-active .homework-page > div:first-child {
 
   body.cahier-tab-active .holidays-page {
     padding-left: 100px !important;
+  }
+
+  body.cahier-tab-active .cahier-page.cahier-exams-groups-page {
+    padding-left: 125px !important;
+    padding-right: 21px !important;
+  }
+
+  body.cahier-tab-active .cahier-page.holidays-page {
+    padding-top: 56px !important;
   }
 
   body.cahier-tab-active .homework-page > div:first-child {
