@@ -45,8 +45,8 @@ body.cahier-tab-active .homework-page
   max-width: 100% !important;
   overflow: visible !important;
   text-overflow: clip !important;
-  white-space: normal !important;
-  overflow-wrap: anywhere !important;
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
   word-break: normal !important;
   font-size: 13px !important;
   line-height: 1.05 !important;
