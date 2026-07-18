@@ -81,6 +81,49 @@ body.cahier-tab-active .homework-page .homework-text[style*="pre-wrap"] {
   justify-content: flex-start !important;
 }
 
+/* Zone de préparation moderne, identique aux versions longues. */
+body.cahier-tab-active
+  .homework-entry:not(.cahier-exam-entry):not(.cahier-extra-holiday-entry)
+  .homework-text {
+  position: relative !important;
+  isolation: isolate !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  background: transparent !important;
+}
+
+body.cahier-tab-active
+  .homework-entry:not(.cahier-exam-entry):not(.cahier-extra-holiday-entry)
+  .homework-text::after {
+  content: '';
+  position: absolute;
+  inset: 0 20px;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #aeb2bb 1.15px, transparent 1.35px);
+  background-position: 0 8px;
+  background-size: 7px 28px;
+  background-repeat: repeat;
+}
+
+body.cahier-tab-active
+  .homework-entry:not(.cahier-exam-entry):not(.cahier-extra-holiday-entry)
+  .homework-text::before {
+  content: 'Contenu de la leçon :';
+  position: absolute;
+  top: 13px;
+  left: 18px;
+  z-index: 1;
+  padding: 0 9px 0 14px;
+  background: #fff;
+  color: #aeb2bb;
+  -webkit-text-fill-color: #aeb2bb;
+  font: 800 14px/18px Arial, sans-serif;
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 body.cahier-tab-active .homework-page .homework-subject > div {
   max-height: 32px !important;
 }
