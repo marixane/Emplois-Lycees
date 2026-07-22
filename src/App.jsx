@@ -88,6 +88,10 @@ export default function App() {
         top: 30px;
       }
 
+      .timetable-page-shifted {
+        background: linear-gradient(135deg, #fffdf2 0%, #fffefa 48%, #fff8d9 100%) !important;
+      }
+
       .timetable-page-shifted > .timetable-table,
       .timetable-page-shifted > .cahier-footer {
         position: relative;
