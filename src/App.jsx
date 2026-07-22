@@ -129,14 +129,12 @@ export default function App() {
       }
 
       .groups-under-timetable [aria-label^="Classes du groupe"] {
-        display: grid !important;
-        grid-template-columns: none !important;
-        grid-template-rows: repeat(4, minmax(0, 1fr)) !important;
-        grid-auto-flow: column !important;
-        grid-auto-columns: minmax(0, 1fr) !important;
+        display: flex !important;
+        flex-direction: column !important;
         align-content: stretch !important;
         align-items: stretch !important;
-        gap: 5px !important;
+        justify-content: flex-start !important;
+        gap: 4px !important;
         height: 150px !important;
         min-height: 150px !important;
         max-height: 150px !important;
@@ -144,10 +142,55 @@ export default function App() {
       }
 
       .groups-under-timetable .cahier-class-group-chip {
+        flex: 0 0 32px !important;
         min-height: 32px !important;
-        padding: 7px 9px !important;
-        font-size: 18px !important;
-        line-height: 1.1 !important;
+        height: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 2px 36px 2px 8px !important;
+        font-size: 15px !important;
+        line-height: 1 !important;
+        overflow: hidden !important;
+      }
+
+      .groups-under-timetable .cahier-class-group-name {
+        min-width: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+      }
+
+      .groups-under-timetable .cahier-class-color-picker {
+        width: 22px !important;
+        height: 22px !important;
+        right: 5px !important;
+      }
+
+      .groups-under-timetable [aria-label^="Classes du groupe"]:has(> .cahier-class-group-chip:nth-child(4)) .cahier-class-group-chip {
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        padding-left: 6px !important;
+        padding-right: 30px !important;
+        font-size: 12px !important;
+      }
+
+      .groups-under-timetable [aria-label^="Classes du groupe"]:has(> .cahier-class-group-chip:nth-child(7)) .cahier-class-group-chip {
+        padding-left: 5px !important;
+        padding-right: 26px !important;
+        font-size: 10px !important;
+      }
+
+      .groups-under-timetable [aria-label^="Classes du groupe"]:has(> .cahier-class-group-chip:nth-child(10)) .cahier-class-group-chip {
+        padding-left: 4px !important;
+        padding-right: 23px !important;
+        font-size: 8px !important;
+      }
+
+      .groups-under-timetable [aria-label^="Classes du groupe"]:has(> .cahier-class-group-chip:nth-child(7)) .cahier-class-color-picker {
+        width: 18px !important;
+        height: 18px !important;
+        right: 4px !important;
       }
 
       .timetable-table .timetable-cell-content.colored-cell .timetable-class-input {
